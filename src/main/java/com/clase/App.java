@@ -17,7 +17,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(
-            getClass().getResource("/com/clase/primary.fxml")
+            getClass().getResource("/com/clase/pacientes.fxml")
         );
         Scene scene = new Scene(loader.load(), 1280, 720);
         stage.setTitle("Controles Basicos");
