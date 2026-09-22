@@ -215,12 +215,7 @@ public class Pacientes implements Initializable {
     private void guardarPaciente() {
         String dni = dnipac.getText() != null ? dnipac.getText().trim().toUpperCase() : "";
 
-        if (!validarDniNie(dni)) {
-            dnipac.setStyle("-fx-border-color: red; -fx-border-width: 1.5px;");
-            System.out.println("ERROR: El DNI o NIE introducido no es válido.");
-            return;
-        }
-
+        
         dnipac.setStyle("");
 
         TextField campoTlf = getCampoTelefono();
