@@ -1,8 +1,19 @@
 package com.clase;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import java.net.URL;
 import java.time.LocalDate;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,14 +35,117 @@ public class Pacientes implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        cmbpac.getItems().addAll("A Coruña", "Lugo", "Ourense", "Pontevedra");
-        locpac.getItems().addAll("Vigo", "Pontevedra", "Tui", "Santiago", "Ferrol");
+        cargarProvincias();
+        cmbpac.valueProperty().addListener((observable, oldValue, newValue) -> cargarMunicipios(newValue));
 
         dnipac.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) { 
                 comprobarDni();
             }
         });
+
+        nompac.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue && nompac.getText() != null) {
+                nompac.setText(formatearNombrePropio(nompac.getText()));
+            }
+        });
+
+        apelpac.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue && apelpac.getText() != null) {
+                apelpac.setText(formatearNombrePropio(apelpac.getText()));
+            }
+        });
+
+        TextField campoTlf = getCampoTelefono();
+        if (campoTlf != null) {
+            campoTlf.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue) {
+                    comprobarTelefono();
+                }
+            });
+        }
+    }
+
+    private void cargarProvincias() {
+        try (InputStream entrada = getClass().getResourceAsStream("/com/clase/data/provincias.json")) {
+            if (entrada == null) {
+                throw new IOException("No se encontró provincias.json");
+            }
+
+            JsonObject datos = JsonParser.parseReader(new InputStreamReader(entrada, StandardCharsets.UTF_8))
+                    .getAsJsonObject();
+            Provincia[] provincias = new Gson().fromJson(datos.getAsJsonArray("provincias"), Provincia[].class);
+
+            cmbpac.getItems().setAll(Arrays.stream(provincias)
+                    .map(Provincia::getNm)
+                    .collect(Collectors.toList()));
+        } catch (IOException | RuntimeException e) {
+            cmbpac.getItems().clear();
+            System.err.println("ERROR al cargar las provincias: " + e.getMessage());
+        }
+    }
+
+    private void cargarMunicipios(String nombreProvincia) {
+        locpac.getItems().clear();
+        if (nombreProvincia == null) {
+            return;
+        }
+
+        try (InputStream entradaProvincias = getClass().getResourceAsStream("/com/clase/data/provincias.json");
+             InputStream entradaMunicipios = getClass().getResourceAsStream("/com/clase/data/municipio.json")) {
+            if (entradaProvincias == null || entradaMunicipios == null) {
+                throw new IOException("No se encontraron los archivos de datos");
+            }
+
+            Gson gson = new Gson();
+            JsonObject datosProvincias = JsonParser.parseReader(
+                    new InputStreamReader(entradaProvincias, StandardCharsets.UTF_8)).getAsJsonObject();
+            Provincia provincia = Arrays.stream(gson.fromJson(
+                            datosProvincias.getAsJsonArray("provincias"), Provincia[].class))
+                    .filter(elemento -> elemento.getNm().equals(nombreProvincia))
+                    .findFirst()
+                    .orElse(null);
+
+            if (provincia == null) {
+                return;
+            }
+
+            JsonObject datosMunicipios = JsonParser.parseReader(
+                    new InputStreamReader(entradaMunicipios, StandardCharsets.UTF_8)).getAsJsonObject();
+                Municipio[] municipios = gson.fromJson(datosMunicipios.getAsJsonArray("municipios"), Municipio[].class);
+            List<String> nombresMunicipios = Arrays.stream(municipios)
+                    .filter(municipio -> municipio.getCodigoProvincia().equals(String.format("%02d", provincia.getId())))
+                    .map(Municipio::getNm)
+                    .sorted()
+                    .collect(Collectors.toList());
+            locpac.getItems().setAll(nombresMunicipios);
+        } catch (IOException | RuntimeException e) {
+            System.err.println("ERROR al cargar los municipios: " + e.getMessage());
+        }
+    }
+
+    private TextField getCampoTelefono() {
+        return tlfpac != null ? tlfpac : tlfopac;
+    }
+
+    private String formatearNombrePropio(String texto) {
+        texto = texto.trim();
+        if (texto.isEmpty()) {
+            return "";
+        }
+
+        String[] palabras = texto.split("\\s+");
+        StringBuilder resultado = new StringBuilder();
+
+        for (String palabra : palabras) {
+            if (!palabra.isEmpty()) {
+                resultado.append(Character.toUpperCase(palabra.charAt(0)))
+                         .append(palabra.substring(1).toLowerCase())
+                         .append(" ");
+            }
+        }
+
+        return resultado.toString().trim();
     }
 
     @FXML
@@ -39,17 +153,15 @@ public class Pacientes implements Initializable {
         String dni = dnipac.getText() != null ? dnipac.getText().trim().toUpperCase() : "";
         
         if (dni.isEmpty()) {
-            
+            dnipac.setStyle("");
             return;
         }
         
         if (validarDniNie(dni)) {
-            dnipac.setStyle(""); 
-            dnipac.setText(dni);
+            dnipac.setStyle("-fx-border-color: green; -fx-border-width: 1.5px;");
         } else {
-            
             dnipac.setStyle("-fx-border-color: red; -fx-border-width: 1.5px;");
-            dnipac.setText(""); 
+            dnipac.setText("");
         }
     }
 
@@ -74,15 +186,63 @@ public class Pacientes implements Initializable {
         return false;
     }
 
+    @FXML
+    private void comprobarTelefono() {
+        TextField campoTlf = getCampoTelefono();
+        if (campoTlf == null) return;
+
+        String tlf = campoTlf.getText() != null ? campoTlf.getText().trim() : "";
+
+        if (tlf.isEmpty()) {
+            campoTlf.setStyle("");
+            return;
+        }
+
+        if (validarTelefono(tlf)) {
+            campoTlf.setStyle("-fx-border-color: green; -fx-border-width: 1.5px;");
+        } else {
+            campoTlf.setStyle("-fx-border-color: red; -fx-border-width: 1.5px;");
+            campoTlf.setText("");
+        }
+    }
+
+    
+    private boolean validarTelefono(String telefono) {
+        return telefono != null && telefono.matches("^[6789]\\d{8}$");
+    }
+
     @FXML 
     private void guardarPaciente() {
-        String dni = dnipac.getText();
-        String apellidos = apelpac.getText();
-        String nombre = nompac.getText();
+        String dni = dnipac.getText() != null ? dnipac.getText().trim().toUpperCase() : "";
+
+        if (!validarDniNie(dni)) {
+            dnipac.setStyle("-fx-border-color: red; -fx-border-width: 1.5px;");
+            System.out.println("ERROR: El DNI o NIE introducido no es válido.");
+            return;
+        }
+
+        dnipac.setStyle("");
+
+        TextField campoTlf = getCampoTelefono();
+        String telefono = campoTlf != null && campoTlf.getText() != null ? campoTlf.getText().trim() : "";
+        if (!validarTelefono(telefono)) {
+            if (campoTlf != null) {
+                campoTlf.setStyle("-fx-border-color: red; -fx-border-width: 1.5px;");
+            }
+            System.out.println("ERROR: El número de teléfono introducido no es válido.");
+            return;
+        }
+        if (campoTlf != null) {
+            campoTlf.setStyle("");
+        }
+
+        String apellidos = formatearNombrePropio(apelpac.getText() != null ? apelpac.getText() : "");
+        String nombre = formatearNombrePropio(nompac.getText() != null ? nompac.getText() : "");
+        
+        apelpac.setText(apellidos);
+        nompac.setText(nombre);
 
         LocalDate fechaNacimiento = nacpac.getValue();
-
-        String telefono = tlfopac.getText();
         String email = emailpac.getText();
         String direccion = dirpac.getText();
 
