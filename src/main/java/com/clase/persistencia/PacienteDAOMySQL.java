@@ -10,7 +10,7 @@ public class PacienteDAOMySQL implements PacienteDAO{
 
     @Override 
     public void guardarPaciente(Paciente paciente) {
-        String sql = "INSERT INTO PACIENTES " + "(dnipac, apelpac, nompac, movilpac, emailpac, nacpac, dirpac, procpac, munipac) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pacientes " + "(dnipac, apelpac, nompac, movilpac, mailpac, nacimientopac, dirpac, propac, munipac) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConexionMySQL.getConexion();
             PreparedStatement ps = conexion.prepareStatement(sql)) {

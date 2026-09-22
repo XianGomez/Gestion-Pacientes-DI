@@ -1,5 +1,7 @@
 package com.clase;
 
+import com.clase.modelo.Paciente;
+import com.clase.persistencia.PacienteDAOMySQL;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -211,49 +213,36 @@ public class Pacientes implements Initializable {
         return telefono != null && telefono.matches("^[6789]\\d{8}$");
     }
 
-    @FXML 
+    @FXML
     private void guardarPaciente() {
-        String dni = dnipac.getText() != null ? dnipac.getText().trim().toUpperCase() : "";
+        // Comprobamos que se haya introducido la fecha 
+        if (nacpac.getValue() == null) { 
+            System.out.println("Debes introducir la fecha de nacimiento"); 
+            return; }
 
-        
-        dnipac.setStyle("");
-
-        TextField campoTlf = getCampoTelefono();
-        String telefono = campoTlf != null && campoTlf.getText() != null ? campoTlf.getText().trim() : "";
-        if (!validarTelefono(telefono)) {
-            if (campoTlf != null) {
-                campoTlf.setStyle("-fx-border-color: red; -fx-border-width: 1.5px;");
-            }
-            System.out.println("ERROR: El número de teléfono introducido no es válido.");
-            return;
-        }
-        if (campoTlf != null) {
-            campoTlf.setStyle("");
-        }
-
-        String apellidos = formatearNombrePropio(apelpac.getText() != null ? apelpac.getText() : "");
-        String nombre = formatearNombrePropio(nompac.getText() != null ? nompac.getText() : "");
-        
-        apelpac.setText(apellidos);
-        nompac.setText(nombre);
-
+        String dni = dnipac.getText();
+        String apellidos = apelpac.getText();
+        String nombre = nompac.getText();
         LocalDate fechaNacimiento = nacpac.getValue();
+        String movil = tlfopac.getText();
         String email = emailpac.getText();
         String direccion = dirpac.getText();
-
         String provincia = cmbpac.getValue();
-        String localidad = locpac.getValue();
+        String municipio = locpac.getValue(); 
+        // Creamos el objeto Paciente 
+        Paciente paciente = new Paciente( 
+         dni,
+         apellidos, 
+         nombre, 
+         movil, 
+         email, fechaNacimiento, 
+         direccion,
+         provincia, 
+         municipio ); 
 
-        System.out.println("=======PACIENTE=========");
-        System.out.println("DNI: " + dni);
-        System.out.println("Apellidos: " + apellidos);
-        System.out.println("Nombre: " + nombre);
-        System.out.println("Fecha Nacimiento: " + fechaNacimiento);
-        System.out.println("Telefono: " + telefono);
-        System.out.println("Email: " + email);
-        System.out.println("Direccion: " + direccion);
-        System.out.println("Provincia: " + provincia);
-        System.out.println("Localidad: " + localidad);
-        System.out.println("========================");
+         // Creamos el DAO y guardamos el paciente en MySQL 
+        PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        dao.guardarPaciente(paciente); 
+        }
     }
-}
+
