@@ -215,7 +215,6 @@ public class Pacientes implements Initializable {
 
     @FXML
     private void guardarPaciente() {
-        // Comprobamos que se haya introducido la fecha 
         if (nacpac.getValue() == null) { 
             System.out.println("Debes introducir la fecha de nacimiento"); 
             return; }
@@ -235,14 +234,18 @@ public class Pacientes implements Initializable {
          apellidos, 
          nombre, 
          movil, 
-         email, fechaNacimiento, 
-         direccion,
-         provincia, 
-         municipio ); 
+         email, direccion ); 
 
          // Creamos el DAO y guardamos el paciente en MySQL 
         PacienteDAOMySQL dao = new PacienteDAOMySQL();
         dao.guardarPaciente(paciente); 
         }
+    }
+
+    @FXML 
+    private void cargarPaciente() {
+        PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        List<Paciente> pacientes = dao.cargarPacientes();
+        tablaPacientes.getItems().setAll(pacientes);
     }
 

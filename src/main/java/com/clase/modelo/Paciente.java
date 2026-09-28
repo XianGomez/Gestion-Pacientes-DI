@@ -13,15 +13,11 @@ public class Paciente {
     private String munipac;
 
     public Paciente(String dnipac, String apelpac, String nompac,
-            String movilpac, String emailpac, LocalDate nacpac,
-            String dirpac, String propac, String munipac) {
+            String movilpac, String propac, String munipac) {
         this.dnipac = dnipac;
         this.apelpac = apelpac;
         this.nompac = nompac;
-        this.nacpac = nacpac;
         this.movilpac = movilpac;
-        this.emailpac = emailpac;
-        this.dirpac = dirpac;
         this.propac = propac;
         this.munipac = munipac;
     }

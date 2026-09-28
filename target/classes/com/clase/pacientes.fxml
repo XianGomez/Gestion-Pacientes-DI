@@ -5,12 +5,17 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" spacing="20.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.Pacientes">
+<VBox alignment="TOP_CENTER" fillWidth="true" maxHeight="-Infinity" maxWidth="Infinity" prefHeight="800.0" prefWidth="1200.0" spacing="20.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.Pacientes">
    <children>
       <Label alignment="CENTER" contentDisplay="TOP" prefHeight="22.0" prefWidth="1024.0" text="Xestión Pacientes" textFill="#7c6161">
          <font>
@@ -20,7 +25,7 @@
             <Insets top="20.0" />
          </VBox.margin>
       </Label>
-      <VBox prefHeight="127.0" prefWidth="1024.0">
+      <VBox alignment="CENTER" maxWidth="1200.0" prefHeight="127.0" prefWidth="1024.0">
          <children>
             <HBox alignment="CENTER" prefHeight="45.0" prefWidth="1280.0">
                <children>
@@ -29,7 +34,7 @@
                         <Insets left="15.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="dnipac">
+                  <TextField fx:id="dnipac" prefHeight="25.0" prefWidth="136.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -39,7 +44,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="apelpac" prefHeight="25.0" prefWidth="186.0">
+                  <TextField fx:id="apelpac" prefHeight="25.0" prefWidth="187.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -49,11 +54,23 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="nompac" prefHeight="25.0" prefWidth="257.0">
+                  <TextField fx:id="nompac" prefHeight="25.0" prefWidth="222.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
                   </TextField>
+                  <Button contentDisplay="CENTER" mnemonicParsing="false" prefHeight="22.0" prefWidth="25.0">
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                     <graphic>
+                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@img/recargar.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
                </children>
                <VBox.margin>
                   <Insets bottom="15.0" />
@@ -79,7 +96,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="tlfopac" prefHeight="25.0" prefWidth="168.0">
+                  <TextField fx:id="tlfopac" prefHeight="25.0" prefWidth="146.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -89,7 +106,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="emailpac" prefHeight="25.0" prefWidth="203.0">
+                  <TextField fx:id="emailpac" prefHeight="25.0" prefWidth="227.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -106,7 +123,7 @@
                         <Insets left="50.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="dirpac" prefHeight="25.0" prefWidth="221.0">
+                  <TextField fx:id="dirpac" prefHeight="25.0" prefWidth="265.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -116,7 +133,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <ComboBox fx:id="cmbpac" prefHeight="25.0" prefWidth="203.0">
+                  <ComboBox fx:id="cmbpac" prefHeight="25.0" prefWidth="207.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -126,7 +143,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <ComboBox fx:id="locpac" prefHeight="25.0" prefWidth="171.0">
+                  <ComboBox fx:id="locpac" prefHeight="25.0" prefWidth="121.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -143,11 +160,6 @@
                         <Insets />
                      </HBox.margin>
                   </Button>
-                  <Button fx:id="btnmodifpac" mnemonicParsing="false" text="Modificar">
-                     <HBox.margin>
-                        <Insets left="20.0" />
-                     </HBox.margin>
-                  </Button>
                   <Button fx:id="btndelpac" mnemonicParsing="false" text="Eliminar">
                      <HBox.margin>
                         <Insets left="20.0" />
@@ -158,6 +170,24 @@
                   <Insets bottom="15.0" top="15.0" />
                </padding>
             </HBox>
+         </children>
+      </VBox>
+      <Separator prefWidth="1200.0" />
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="50.0">
+         <children>
+            <TableView fx:id="tablapacientes" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="200.0" prefWidth="1030.0">
+              <columns>
+                <TableColumn fx:id="coldnipac" prefWidth="140.0" style="-fx-alignment: CENTER;" text="DNI" />
+                <TableColumn fx:id="colapelpac" prefWidth="200.0" text="APELLIDOS" />
+                  <TableColumn fx:id="colnompac" prefWidth="200.0" text="NOMBRE" />
+                  <TableColumn fx:id="colmovilpac" prefWidth="100.0" style="-fx-alignment: Center;" text="MOVIL" />
+                  <TableColumn fx:id="colpropac" prefWidth="150.0" text="PROVINCIA" />
+                  <TableColumn fx:id="colmunipac" prefWidth="240.0" text="MUNICIPIO" />
+              </columns>
+               <VBox.margin>
+                  <Insets left="85.0" right="85.0" />
+               </VBox.margin>
+            </TableView>
          </children>
       </VBox>
    </children>
