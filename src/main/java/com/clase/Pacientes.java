@@ -264,6 +264,22 @@ public class Pacientes implements Initializable {
         cargarPacientes();
     }
 
+    @FXML
+    private void limpiarCampos() {
+        dnipac.clear();
+        apelpac.clear();
+        nompac.clear();
+        nacpac.setValue(null);
+        tlfopac.clear();
+        emailpac.clear();
+        dirpac.clear();
+        cmbpac.setValue(null);
+        locpac.getItems().clear();
+        dnipac.setStyle("");
+        tlfopac.setStyle("");
+        tablapacientes.getSelectionModel().clearSelection();
+    }
+
     @FXML 
     private void cargarPacientes() {
         PacienteDAOMySQL dao = new PacienteDAOMySQL();
