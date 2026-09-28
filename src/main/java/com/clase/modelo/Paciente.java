@@ -12,12 +12,15 @@ public class Paciente {
     private String propac;
     private String munipac;
 
-    public Paciente(String dnipac, String apelpac, String nompac,
-            String movilpac, String propac, String munipac) {
+    public Paciente(String dnipac, String apelpac, String nompac, LocalDate nacpac,
+            String movilpac, String emailpac, String dirpac, String propac, String munipac) {
         this.dnipac = dnipac;
         this.apelpac = apelpac;
         this.nompac = nompac;
         this.movilpac = movilpac;
+        this.emailpac = emailpac;
+        this.nacpac = nacpac;
+        this.dirpac = dirpac;
         this.propac = propac;
         this.munipac = munipac;
     }
@@ -43,6 +46,14 @@ public class Paciente {
 
     public void setApellidos(String apelpac) {
         this.apelpac = apelpac;
+    }
+
+    public void setNacpac(LocalDate nacpac) {
+        this.nacpac = nacpac;
+    }
+
+    public LocalDate getNacpac() {
+        return nacpac;
     }
 
     public String getMovil() {

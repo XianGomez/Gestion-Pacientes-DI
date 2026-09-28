@@ -13,16 +13,18 @@ public class PacienteDAOMySQL implements PacienteDAO{
 
     @Override 
     public void guardarPaciente(Paciente paciente) {
-        String sql = "INSERT INTO pacientes " + "(dnipac, apelpac, nompac, movilpac, mailpac, nacimientopac, dirpac, propac, munipac) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pacientes "
+                + "(dnipac, apelpac, nompac, nacimientopac, movilpac, mailpac, dirpac, propac, munipac) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConexionMySQL.getConexion();
             PreparedStatement ps = conexion.prepareStatement(sql)) {
                 ps.setString(1, paciente.getDni());
                 ps.setString(2, paciente.getApellidos());
                 ps.setString(3, paciente.getNombre());
-                ps.setString(4, paciente.getMovil());
-                ps.setString(5, paciente.getEmail());
-                ps.setDate(6, java.sql.Date.valueOf(paciente.getNacimiento()));
+                ps.setDate(4, java.sql.Date.valueOf(paciente.getNacimiento()));
+                ps.setString(5, paciente.getMovil());
+                ps.setString(6, paciente.getEmail());
                 ps.setString(7, paciente.getDireccion());
                 ps.setString(8, paciente.getProvincia());
                 ps.setString(9, paciente.getMunicipio());
@@ -32,7 +34,7 @@ public class PacienteDAOMySQL implements PacienteDAO{
                 System.out.println("Paciente guardado correctamente");
 
             } catch (SQLException e) {
-                System.out.println("Error al guardar el paciente: " + e.getMessage());
+                throw new IllegalStateException("No se pudo guardar el paciente en la base de datos", e);
             }
     }
 
@@ -42,8 +44,8 @@ public class PacienteDAOMySQL implements PacienteDAO{
         List<Paciente> pacientes = new ArrayList<>();
 
         // Solo obtenemos los campos que necesitamos para la tabla
-        String sql = "SELECT dnipac, apelpac, nompac, movilpac, "
-                + "propac, munipac "
+        String sql = "SELECT dnipac, apelpac, nompac, nacimientopac, movilpac, "
+            + "mailpac, dirpac, propac, munipac "
                 + "FROM pacientes "
                 + "ORDER BY apelpac, nompac";
 
@@ -58,7 +60,10 @@ public class PacienteDAOMySQL implements PacienteDAO{
                         rs.getString("dnipac"),
                         rs.getString("apelpac"),
                         rs.getString("nompac"),
+                        rs.getDate("nacimientopac").toLocalDate(),
                         rs.getString("movilpac"),
+                        rs.getString("mailpac"),
+                        rs.getString("dirpac"),
                         rs.getString("propac"),
                         rs.getString("munipac"));
 
@@ -66,10 +71,38 @@ public class PacienteDAOMySQL implements PacienteDAO{
             }
 
         } catch (SQLException e) {
-            System.out.println("Error al cargar los pacientes: " + e.getMessage());
+            throw new IllegalStateException("No se pudieron cargar los pacientes", e);
         }
 
         return pacientes;
+    }
+
+    @Override
+    public Paciente buscarPaciente(String dni) {
+        String sql = "SELECT dnipac, apelpac, nompac, nacimientopac, movilpac, "
+                + "mailpac, dirpac, propac, munipac FROM pacientes WHERE dnipac = ?";
+
+        try (Connection conexion = ConexionMySQL.getConexion();
+                PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, dni);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                return new Paciente(
+                        rs.getString("dnipac"),
+                        rs.getString("apelpac"),
+                        rs.getString("nompac"),
+                        rs.getDate("nacimientopac").toLocalDate(),
+                        rs.getString("movilpac"),
+                        rs.getString("mailpac"),
+                        rs.getString("dirpac"),
+                        rs.getString("propac"),
+                        rs.getString("munipac"));
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo buscar el paciente", e);
+        }
     }
     
 }

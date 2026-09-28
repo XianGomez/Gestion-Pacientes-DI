@@ -22,7 +22,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class Pacientes implements Initializable {
 
@@ -33,7 +36,11 @@ public class Pacientes implements Initializable {
     @FXML 
     private ComboBox<String> cmbpac, locpac;
     @FXML 
-    private Button btnguardarpac, btnmodifpac, btndelpac;
+    private Button btnguardarpac, btndelpac;
+    @FXML
+    private TableView<Paciente> tablapacientes;
+    @FXML
+    private TableColumn<Paciente, String> coldnipac, colapelpac, colnompac, colmovilpac, colpropac, colmunipac;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -66,6 +73,14 @@ public class Pacientes implements Initializable {
                 }
             });
         }
+
+        coldnipac.setCellValueFactory(new PropertyValueFactory<>("dni"));
+        colapelpac.setCellValueFactory(new PropertyValueFactory<>("apellidos"));
+        colnompac.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colmovilpac.setCellValueFactory(new PropertyValueFactory<>("movil"));
+        colpropac.setCellValueFactory(new PropertyValueFactory<>("provincia"));
+        colmunipac.setCellValueFactory(new PropertyValueFactory<>("municipio"));
+        cargarPacientes();
     }
 
     private void cargarProvincias() {
@@ -215,9 +230,10 @@ public class Pacientes implements Initializable {
 
     @FXML
     private void guardarPaciente() {
-        if (nacpac.getValue() == null) { 
-            System.out.println("Debes introducir la fecha de nacimiento"); 
-            return; }
+        if (nacpac.getValue() == null) {
+            System.err.println("No se puede guardar: debes introducir la fecha de nacimiento");
+            return;
+        }
 
         String dni = dnipac.getText();
         String apellidos = apelpac.getText();
@@ -229,23 +245,30 @@ public class Pacientes implements Initializable {
         String provincia = cmbpac.getValue();
         String municipio = locpac.getValue(); 
         // Creamos el objeto Paciente 
-        Paciente paciente = new Paciente( 
-         dni,
-         apellidos, 
-         nombre, 
-         movil, 
-         email, direccion ); 
-
-         // Creamos el DAO y guardamos el paciente en MySQL 
-        PacienteDAOMySQL dao = new PacienteDAOMySQL();
-        dao.guardarPaciente(paciente); 
+        if (dni.isBlank() || apellidos.isBlank() || nombre.isBlank() || movil.isBlank()
+                || direccion.isBlank() || provincia == null || municipio == null) {
+            System.err.println("No se puede guardar: completa todos los campos obligatorios");
+            return;
         }
+
+        Paciente paciente = new Paciente(
+                dni, apellidos, nombre, fechaNacimiento, movil, email, direccion, provincia, municipio);
+
+        try {
+            new PacienteDAOMySQL().guardarPaciente(paciente);
+        } catch (IllegalStateException e) {
+            System.err.println("ERROR al guardar el paciente: " + e.getMessage());
+            return;
+        }
+
+        cargarPacientes();
     }
 
     @FXML 
-    private void cargarPaciente() {
+    private void cargarPacientes() {
         PacienteDAOMySQL dao = new PacienteDAOMySQL();
         List<Paciente> pacientes = dao.cargarPacientes();
-        tablaPacientes.getItems().setAll(pacientes);
+        tablapacientes.getItems().setAll(pacientes);
     }
 
+}
