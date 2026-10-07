@@ -4,7 +4,9 @@ module com.clase {
     requires javafx.fxml;
     requires com.google.gson;
     requires java.sql;
+    requires javafx.base;
 
     opens com.clase to javafx.fxml;
+    opens com.clase.modelo to javafx.base;
     exports com.clase;
 }

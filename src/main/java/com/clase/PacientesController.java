@@ -27,7 +27,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class Pacientes implements Initializable {
+
+
+public class PacientesController implements Initializable {
 
     @FXML
     private TextField dnipac, apelpac, nompac, tlfpac, emailpac, dirpac, tlfopac;
@@ -38,9 +40,11 @@ public class Pacientes implements Initializable {
     @FXML 
     private Button btnguardarpac, btndelpac;
     @FXML
-    private TableView<Paciente> tablapacientes;
+    private TableView<Paciente> tablaPacientes;
     @FXML
     private TableColumn<Paciente, String> coldnipac, colapelpac, colnompac, colmovilpac, colpropac, colmunipac;
+
+    boolean pacienteexiste = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -81,6 +85,12 @@ public class Pacientes implements Initializable {
         colpropac.setCellValueFactory(new PropertyValueFactory<>("provincia"));
         colmunipac.setCellValueFactory(new PropertyValueFactory<>("municipio"));
         cargarPacientes();
+
+        tablaPacientes.getSelectionModel().selectedItemProperty().addListener((observable, anterior, nuevo) -> {
+            if (nuevo != null) {
+                cargarPaciente();
+            }
+        });
     }
 
     private void cargarProvincias() {
@@ -235,7 +245,7 @@ public class Pacientes implements Initializable {
             return;
         }
 
-        String dni = dnipac.getText();
+        String dni = dnipac.getText().toUpperCase();
         String apellidos = apelpac.getText();
         String nombre = nompac.getText();
         LocalDate fechaNacimiento = nacpac.getValue();
@@ -251,21 +261,43 @@ public class Pacientes implements Initializable {
             return;
         }
 
-        Paciente paciente = new Paciente(
-                dni, apellidos, nombre, fechaNacimiento, movil, email, direccion, provincia, municipio);
+        Paciente paciente = new Paciente(dni, apellidos, nombre, fechaNacimiento, movil, email, direccion, provincia, municipio);
 
-        try {
-            new PacienteDAOMySQL().guardarPaciente(paciente);
-        } catch (IllegalStateException e) {
-            System.err.println("ERROR al guardar el paciente: " + e.getMessage());
-            return;
+        PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        if (pacienteexiste) {
+            dao.modificarPaciente(paciente.getDni(), paciente);
+            pacienteexiste = false;
+            buscaPacDni();
+        } else {
+            dao.guardarPaciente(paciente);
         }
 
         cargarPacientes();
     }
 
+    public void cargarPaciente() {
+        Paciente paciente = tablaPacientes.getSelectionModel().getSelectedItem();
+        if (paciente == null) {
+            return;
+        }
+
+        pacienteexiste = true;
+        dnipac.setText(paciente.getDni());
+        apelpac.setText(paciente.getApellidos());
+        nompac.setText(paciente.getNombre());
+        getCampoTelefono().setText(paciente.getMovil());
+        emailpac.setText(paciente.getEmail());
+        dirpac.setText(paciente.getDireccion());
+        nacpac.setValue(paciente.getNacimiento());
+        cmbpac.setValue(paciente.getProvincia());
+        locpac.setValue(paciente.getMunicipio());
+
+
+    }
+
     @FXML
     private void limpiarCampos() {
+        pacienteexiste = false;
         dnipac.clear();
         apelpac.clear();
         nompac.clear();
@@ -277,14 +309,53 @@ public class Pacientes implements Initializable {
         locpac.getItems().clear();
         dnipac.setStyle("");
         tlfopac.setStyle("");
-        tablapacientes.getSelectionModel().clearSelection();
+        tablaPacientes.getSelectionModel().clearSelection();
     }
 
     @FXML 
     private void cargarPacientes() {
         PacienteDAOMySQL dao = new PacienteDAOMySQL();
         List<Paciente> pacientes = dao.cargarPacientes();
-        tablapacientes.getItems().setAll(pacientes);
+        tablaPacientes.getItems().setAll(pacientes);
+    }
+
+    @FXML 
+    public void eliminarPaciente() {
+        Paciente seleccionado = tablaPacientes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) {
+            return;
+        }
+
+        PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        try {
+            dao.eliminarPaciente(seleccionado.getDni());
+            tablaPacientes.getItems().remove(seleccionado);
+            limpiarCampos();
+        } catch (IllegalStateException e) {
+            System.err.println("ERROR al eliminar el paciente: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void buscaPacDni() {
+
+        PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        Paciente paciente = dao.buscaPacDni(dnipac.getText());
+        if (paciente == null) {
+            System.err.println("No se encontró un paciente con ese DNI");
+            return;
+        }
+
+        dnipac.setText(paciente.getDni());
+        apelpac.setText(paciente.getApellidos());
+        nompac.setText(paciente.getNombre());
+        tlfopac.setText(paciente.getMovil());
+        emailpac.setText(paciente.getEmail());
+        dirpac.setText(paciente.getDireccion());
+        nacpac.setValue(paciente.getNacimiento());
+        cmbpac.setValue(paciente.getProvincia());
+        locpac.setValue(paciente.getMunicipio());
+
     }
 
 }

@@ -15,14 +15,14 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" fillWidth="true" maxHeight="-Infinity" maxWidth="Infinity" prefHeight="800.0" prefWidth="1200.0" spacing="20.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.Pacientes">
+<VBox alignment="TOP_CENTER" fillWidth="true" maxHeight="Infinity" maxWidth="Infinity" prefHeight="800.0" prefWidth="1200.0" spacing="20.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.PacientesController">
    <children>
-      <Label alignment="CENTER" contentDisplay="TOP" prefHeight="22.0" prefWidth="1024.0" text="Xestión Pacientes" textFill="#7c6161">
+      <Label alignment="CENTER" contentDisplay="TOP" maxWidth="1.7976931348623157E308" prefHeight="57.0" prefWidth="1200.0" style="-fx-background-color: #8CCF8A;" text="Xestión Pacientes" textFill="WHITE">
          <font>
             <Font name="Arial Narrow Bold" size="19.0" />
          </font>
          <VBox.margin>
-            <Insets top="20.0" />
+            <Insets />
          </VBox.margin>
       </Label>
       <VBox alignment="CENTER" maxWidth="1200.0" prefHeight="127.0" prefWidth="1024.0">
@@ -34,17 +34,29 @@
                         <Insets left="15.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="dnipac" prefHeight="25.0" prefWidth="136.0">
+                  <TextField fx:id="dnipac" prefHeight="25.0" prefWidth="115.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
                   </TextField>
+                  <Button fx:id="btnbuscapacdni" mnemonicParsing="false" onAction="#buscaPacDni" prefHeight="3.0" prefWidth="36.0">
+                     <graphic>
+                        <ImageView fx:id="btnbuscapacdni" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@img/pngegg.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Button>
                   <Label text="Apellidos:">
                      <HBox.margin>
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="apelpac" prefHeight="25.0" prefWidth="187.0">
+                  <TextField fx:id="apelpac" prefHeight="25.0" prefWidth="178.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -54,7 +66,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="nompac" prefHeight="25.0" prefWidth="222.0">
+                  <TextField fx:id="nompac" prefHeight="25.0" prefWidth="189.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -86,7 +98,7 @@
                         <Insets left="30.0" />
                      </HBox.margin>
                   </Label>
-                  <DatePicker fx:id="nacpac" prefHeight="25.0" prefWidth="191.0">
+                  <DatePicker fx:id="nacpac" prefHeight="25.0" prefWidth="216.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -96,7 +108,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="tlfopac" prefHeight="25.0" prefWidth="146.0">
+                  <TextField fx:id="tlfopac" prefHeight="25.0" prefWidth="139.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -106,7 +118,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="emailpac" prefHeight="25.0" prefWidth="227.0">
+                  <TextField fx:id="emailpac" prefHeight="25.0" prefWidth="195.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -123,7 +135,7 @@
                         <Insets left="50.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="dirpac" prefHeight="25.0" prefWidth="265.0">
+                  <TextField fx:id="dirpac" prefHeight="25.0" prefWidth="254.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -160,7 +172,7 @@
                         <Insets />
                      </HBox.margin>
                   </Button>
-                  <Button fx:id="btndelpac" mnemonicParsing="false" text="Eliminar">
+                  <Button fx:id="btndelpac" mnemonicParsing="false" onAction="#eliminarPaciente" text="Eliminar">
                      <HBox.margin>
                         <Insets left="20.0" />
                      </HBox.margin>
@@ -173,9 +185,9 @@
          </children>
       </VBox>
       <Separator prefWidth="1200.0" />
-      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="50.0">
+      <VBox alignment="CENTER" prefHeight="346.0" prefWidth="1200.0" VBox.vgrow="ALWAYS">
          <children>
-            <TableView fx:id="tablapacientes" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="200.0" prefWidth="1030.0">
+            <TableView fx:id="tablaPacientes" maxHeight="-Infinity" maxWidth="-Infinity" VBox.vgrow="ALWAYS">
               <columns>
                 <TableColumn fx:id="coldnipac" prefWidth="140.0" style="-fx-alignment: CENTER;" text="DNI" />
                 <TableColumn fx:id="colapelpac" prefWidth="200.0" text="APELLIDOS" />
@@ -185,7 +197,7 @@
                   <TableColumn fx:id="colmunipac" prefWidth="240.0" text="MUNICIPIO" />
               </columns>
                <VBox.margin>
-                  <Insets left="85.0" right="85.0" />
+                  <Insets bottom="20.0" left="85.0" right="85.0" />
                </VBox.margin>
             </TableView>
          </children>
