@@ -1,0 +1,13 @@
+{
+  "especialidades": [
+    {"id": 1, "nm": "Cardiología"},
+    {"id": 2, "nm": "Dermatología"},
+    {"id": 3, "nm": "Endocrinología"},
+    {"id": 4, "nm": "Ginecología"},
+    {"id": 5, "nm": "Medicina General"},
+    {"id": 6, "nm": "Neurología"},
+    {"id": 7, "nm": "Pediatría"},
+    {"id": 8, "nm": "Psiquiatría"},
+    {"id": 9, "nm": "Traumatología"}
+  ]
+}

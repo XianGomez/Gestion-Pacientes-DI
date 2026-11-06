@@ -1,4 +1,10 @@
 {
     "java.debug.settings.onBuildFailureProceed": true,
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "chat.tools.terminal.autoApprove": {
+        "/^mvn -q -DskipTests compile$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
 }

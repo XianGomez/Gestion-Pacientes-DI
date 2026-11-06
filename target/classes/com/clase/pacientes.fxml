@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" fillWidth="true" maxHeight="Infinity" maxWidth="Infinity" prefHeight="800.0" prefWidth="1200.0" spacing="20.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.PacientesController">
+<VBox alignment="TOP_CENTER" fillWidth="true" maxHeight="Infinity" maxWidth="Infinity" prefHeight="800.0" prefWidth="1200.0" spacing="20.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.PacientesController">
    <children>
       <Label alignment="CENTER" contentDisplay="TOP" maxWidth="1.7976931348623157E308" prefHeight="57.0" prefWidth="1200.0" style="-fx-background-color: #8CCF8A;" text="Xestión Pacientes" textFill="WHITE">
          <font>

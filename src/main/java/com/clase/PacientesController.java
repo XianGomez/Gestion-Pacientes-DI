@@ -14,12 +14,16 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
@@ -266,10 +270,29 @@ public class PacientesController implements Initializable {
         PacienteDAOMySQL dao = new PacienteDAOMySQL();
         if (pacienteexiste) {
             dao.modificarPaciente(paciente.getDni(), paciente);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Información");
+            alert.setHeaderText("Sanidad Teis");
+            alert.setContentText("Paciente Modificado Correctamente");
+            alert.showAndWait();
             pacienteexiste = false;
             buscaPacDni();
         } else {
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Confirmar alta");
+            confirmacion.setHeaderText(null);
+            confirmacion.setContentText("¿Confirmas que quieres crear este paciente?");
+            Optional<ButtonType> resultado = confirmacion.showAndWait();
+            if (resultado.isEmpty() || resultado.get() != ButtonType.OK) {
+                return;
+            }
+
             dao.guardarPaciente(paciente);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Información");
+            alert.setHeaderText("Sanidad Teis");
+            alert.setContentText("Paciente Guardado Correctamente");
+            alert.showAndWait();
         }
 
         cargarPacientes();
@@ -328,9 +351,21 @@ public class PacientesController implements Initializable {
 
         PacienteDAOMySQL dao = new PacienteDAOMySQL();
         try {
-            dao.eliminarPaciente(seleccionado.getDni());
-            tablaPacientes.getItems().remove(seleccionado);
-            limpiarCampos();
+            
+            
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Aviso");
+            alert.setHeaderText(null);
+            alert.setContentText("Quieres eliminar al paciente?");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                dao.eliminarPaciente(seleccionado.getDni());
+                tablaPacientes.getItems().remove(seleccionado);
+                limpiarCampos();
+                
+            }
+            
         } catch (IllegalStateException e) {
             System.err.println("ERROR al eliminar el paciente: " + e.getMessage());
         }
@@ -343,6 +378,11 @@ public class PacientesController implements Initializable {
         Paciente paciente = dao.buscaPacDni(dnipac.getText());
         if (paciente == null) {
             System.err.println("No se encontró un paciente con ese DNI");
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Búsqueda de paciente");
+            alert.setHeaderText(null);
+            alert.setContentText("No se encontró un paciente con ese DNI en la BBD.");
+            alert.showAndWait();
             return;
         }
 

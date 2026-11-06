@@ -8,7 +8,7 @@
 <?import javafx.scene.text.Font?>
 
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="313.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.AcercadeController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="313.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.AcercadeController">
    <children>
       <Button fx:id="btnCerrarAcercade" layoutX="274.0" layoutY="269.0" mnemonicParsing="false" onAction="#cerrarAcercade" text="Cerrar" />
       <Label alignment="CENTER" contentDisplay="CENTER" layoutX="220.0" layoutY="14.0" prefHeight="33.0" prefWidth="160.0" text="Sanidad Teis">

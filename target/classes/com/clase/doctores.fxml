@@ -15,9 +15,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" fillWidth="true" maxHeight="Infinity" maxWidth="Infinity" prefHeight="800.0" prefWidth="1200.0" spacing="20.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.PacientesController">
+<VBox alignment="TOP_CENTER" fillWidth="true" maxHeight="Infinity" maxWidth="Infinity" prefHeight="800.0" prefWidth="1200.0" spacing="20.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.DoctoresController">
    <children>
-      <Label alignment="CENTER" contentDisplay="TOP" maxWidth="1.7976931348623157E308" prefHeight="57.0" prefWidth="1200.0" style="-fx-background-color: #8CCF8A;" text="Xestión Pacientes" textFill="WHITE">
+      <Label alignment="CENTER" contentDisplay="TOP" maxWidth="1.7976931348623157E308" prefHeight="57.0" prefWidth="1200.0" style="-fx-background-color: #8CCF8A;" text="Gestión Doctores" textFill="WHITE">
          <font>
             <Font name="Arial Narrow Bold" size="19.0" />
          </font>
@@ -29,28 +29,16 @@
          <children>
             <HBox alignment="CENTER" prefHeight="45.0" prefWidth="1280.0">
                <children>
-                  <Label fx:id="iddoc" text="ID:">
+                  <Label text="ID:">
                      <HBox.margin>
                         <Insets left="15.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="dnipac" prefHeight="25.0" prefWidth="159.0">
+                  <TextField fx:id="iddoc" prefHeight="25.0" prefWidth="159.0" promptText="ID asignado al guardar">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
                   </TextField>
-                  <Button fx:id="btnbuscapacdni" mnemonicParsing="false" onAction="#buscaPacDni" prefHeight="3.0" prefWidth="36.0">
-                     <graphic>
-                        <ImageView fx:id="btnbuscapacdni" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@img/pngegg.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <HBox.margin>
-                        <Insets left="15.0" />
-                     </HBox.margin>
-                  </Button>
                   <Label text="Apellidos:">
                      <HBox.margin>
                         <Insets left="20.0" />
@@ -108,7 +96,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="maildoc" prefHeight="25.0" prefWidth="195.0">
+                  <TextField fx:id="emaildoc" prefHeight="25.0" prefWidth="195.0">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -118,12 +106,12 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <RadioButton mnemonicParsing="false" text="SI">
+                  <RadioButton fx:id="coledocSi" mnemonicParsing="false" text="SI">
                      <HBox.margin>
                         <Insets left="15.0" />
                      </HBox.margin>
                   </RadioButton>
-                  <RadioButton mnemonicParsing="false" text="NO">
+                  <RadioButton fx:id="coledocNo" mnemonicParsing="false" text="NO">
                      <HBox.margin>
                         <Insets left="15.0" />
                      </HBox.margin>
@@ -138,6 +126,18 @@
                         <Insets left="15.0" />
                      </HBox.margin>
                   </ComboBox>
+                  <Button fx:id="btnbuscadoctor" mnemonicParsing="false" onAction="#buscadocporEspecialidad" prefHeight="3.0" prefWidth="36.0">
+                     <graphic>
+                        <ImageView fx:id="btnbuscapacdni" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@img/pngegg.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Button>
                </children>
                <padding>
                   <Insets bottom="15.0" top="15.0" />
@@ -145,12 +145,12 @@
             </HBox>
             <HBox alignment="CENTER" prefHeight="45.0" prefWidth="1024.0">
                <children>
-                  <Button mnemonicParsing="false" text="Guardar">
+                  <Button fx:id="btnguardardoc" mnemonicParsing="false" onAction="#guardarDoctor" text="Guardar">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
                   </Button>
-                  <Button mnemonicParsing="false" text="Eliminar">
+                  <Button fx:id="btndeldoc" mnemonicParsing="false" onAction="#eliminarDoctor" text="Eliminar">
                      <HBox.margin>
                         <Insets left="20.0" />
                      </HBox.margin>
@@ -165,13 +165,13 @@
       <Separator prefWidth="1200.0" />
       <VBox alignment="CENTER" prefHeight="346.0" prefWidth="1200.0" VBox.vgrow="ALWAYS">
          <children>
-            <TableView fx:id="tablaPacientes" maxHeight="-Infinity" maxWidth="-Infinity" VBox.vgrow="ALWAYS">
+            <TableView fx:id="tablaDoctores" maxHeight="-Infinity" maxWidth="-Infinity" VBox.vgrow="ALWAYS">
               <columns>
-                <TableColumn fx:id="coldnipac" prefWidth="140.0" style="-fx-alignment: CENTER;" text="ID" />
-                <TableColumn fx:id="colapelpac" prefWidth="200.0" text="APELLIDOS" />
-                  <TableColumn fx:id="colnompac" prefWidth="200.0" text="NOMBRE" />
-                  <TableColumn fx:id="colmovilpac" prefWidth="100.0" style="-fx-alignment: Center;" text="MOVIL" />
-                  <TableColumn fx:id="colpropac" prefWidth="150.0" text="ESPECIALIDAD" />
+                <TableColumn fx:id="coliddoc" prefWidth="140.0" style="-fx-alignment: CENTER;" text="ID" />
+                <TableColumn fx:id="colapeldoc" prefWidth="200.0" text="APELLIDOS" />
+                  <TableColumn fx:id="colnomedoc" prefWidth="200.0" text="NOMBRE" />
+                  <TableColumn fx:id="colmovildoc" prefWidth="100.0" style="-fx-alignment: Center;" text="MOVIL" />
+                  <TableColumn fx:id="colespedoc" prefWidth="150.0" text="ESPECIALIDAD" />
               </columns>
                <VBox.margin>
                   <Insets bottom="20.0" left="85.0" right="85.0" />
