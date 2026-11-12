@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="800.0" prefWidth="1220.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.VentanaController">
+<AnchorPane fx:id="rootVentana" minHeight="0.0" minWidth="0.0" prefHeight="800.0" prefWidth="1220.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.VentanaController">
    <children>
       <VBox>
          <children>
@@ -33,7 +33,7 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Informes">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="Delete" />
+                    <MenuItem mnemonicParsing="false" onAction="#exportarPacientesPDF" text="Exportar pacientes a PDF" />
                   </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Acerca">
@@ -70,17 +70,17 @@
                <tabs>
                   <Tab text="Pacientes">
                      <content>
-                        <fx:include source="pacientes.fxml" />
+                        <fx:include fx:id="pacientes" source="pacientes.fxml" />
                      </content>
                   </Tab>
                   <Tab text="Doctores">
                      <content>
-                        <fx:include source="doctores.fxml" />
+                        <fx:include fx:id="doctores" source="doctores.fxml" />
                      </content>
                   </Tab>
                   <Tab text="Citas">
                      <content>
-                        <fx:include source="citas.fxml" />
+                        <fx:include fx:id="citas" source="citas.fxml" />
                      </content>
                   </Tab>
                </tabs>

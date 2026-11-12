@@ -1,21 +1,28 @@
 package com.clase.modelo;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 public class Cita {
-    private final int idcita;
+    private int idcita;
     private final String dniPaciente;
     private final int idDoctor;
     private final LocalDate fecha;
-    private final LocalTime hora;
+    private final String hora;
     private final String motivo;
     private final String diagnostico;
     private final String tratamiento;
     private final String estado;
+    private final String doctor;
+    private final String especialidad;
 
-    public Cita(int idcita, String dniPaciente, int idDoctor, LocalDate fecha, LocalTime hora,
+    public Cita(int idcita, String dniPaciente, int idDoctor, LocalDate fecha, String hora,
             String motivo, String diagnostico, String tratamiento, String estado) {
+        this(idcita, dniPaciente, idDoctor, fecha, hora, motivo, diagnostico, tratamiento, estado, "", "");
+    }
+
+    public Cita(int idcita, String dniPaciente, int idDoctor, LocalDate fecha, String hora,
+            String motivo, String diagnostico, String tratamiento, String estado,
+            String doctor, String especialidad) {
         this.idcita = idcita;
         this.dniPaciente = dniPaciente;
         this.idDoctor = idDoctor;
@@ -25,10 +32,16 @@ public class Cita {
         this.diagnostico = diagnostico;
         this.tratamiento = tratamiento;
         this.estado = estado;
+        this.doctor = doctor;
+        this.especialidad = especialidad;
     }
 
     public int getIdcita() {
         return idcita;
+    }
+
+    public void setIdcita(int idcita) {
+        this.idcita = idcita;
     }
 
     public String getDniPaciente() {
@@ -43,7 +56,7 @@ public class Cita {
         return fecha;
     }
 
-    public LocalTime getHora() {
+    public String getHora() {
         return hora;
     }
 
@@ -61,5 +74,13 @@ public class Cita {
 
     public String getEstado() {
         return estado;
+    }
+
+    public String getDoctor() {
+        return doctor;
+    }
+
+    public String getEspecialidad() {
+        return especialidad;
     }
 }

@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
@@ -48,6 +49,7 @@ public class PacientesController implements Initializable {
     @FXML
     private TableColumn<Paciente, String> coldnipac, colapelpac, colnompac, colmovilpac, colpropac, colmunipac;
 
+    private Consumer<Paciente> alSeleccionarPaciente = paciente -> { };
     boolean pacienteexiste = false;
 
     @Override
@@ -93,8 +95,13 @@ public class PacientesController implements Initializable {
         tablaPacientes.getSelectionModel().selectedItemProperty().addListener((observable, anterior, nuevo) -> {
             if (nuevo != null) {
                 cargarPaciente();
+                alSeleccionarPaciente.accept(nuevo);
             }
         });
+    }
+
+    void setAlSeleccionarPaciente(Consumer<Paciente> alSeleccionarPaciente) {
+        this.alSeleccionarPaciente = alSeleccionarPaciente;
     }
 
     private void cargarProvincias() {

@@ -5,9 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class CitaDAOMySQL {
                         rs.getString("dnipac"),
                         rs.getInt("iddoc"),
                         rs.getDate("fechacita").toLocalDate(),
-                        rs.getTime("horacita").toLocalTime(),
+                        rs.getString("horacita"),
                         rs.getString("motivo"),
                         rs.getString("diagnostico"),
                         rs.getString("tratamiento"),
@@ -53,7 +52,7 @@ public class CitaDAOMySQL {
                             rs.getString("dnipac"),
                             rs.getInt("iddoc"),
                             rs.getDate("fechacita").toLocalDate(),
-                            rs.getTime("horacita").toLocalTime(),
+                            rs.getString("horacita"),
                             rs.getString("motivo"),
                             rs.getString("diagnostico"),
                             rs.getString("tratamiento"),
@@ -67,21 +66,61 @@ public class CitaDAOMySQL {
         return null;
     }
 
-    public void guardarCita(Cita cita) {
+    public List<Cita> cargarHistorialPaciente(String dniPaciente) {
+        String sql = "SELECT c.idcita, c.dnipac, c.iddoc, c.fechacita, c.horacita, "
+                + "c.motivo, c.diagnostico, c.tratamiento, c.estado, "
+                + "CONCAT(d.apeldoc, ', ', d.nomedoc) AS doctor, d.espedoc "
+                + "FROM citas c JOIN doctores d ON d.iddoc = c.iddoc "
+                + "WHERE c.dnipac = ? ORDER BY c.fechacita, c.horacita";
+        List<Cita> citas = new ArrayList<>();
+
+        try (Connection conexion = ConexionMySQL.getConexion();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, dniPaciente);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    citas.add(new Cita(
+                            rs.getInt("idcita"),
+                            rs.getString("dnipac"),
+                            rs.getInt("iddoc"),
+                            rs.getDate("fechacita").toLocalDate(),
+                            rs.getString("horacita"),
+                            rs.getString("motivo"),
+                            rs.getString("diagnostico"),
+                            rs.getString("tratamiento"),
+                            rs.getString("estado"),
+                            rs.getString("doctor"),
+                            rs.getString("espedoc")));
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo cargar el historial del paciente", e);
+        }
+
+        return citas;
+    }
+
+    public int guardarCita(Cita cita) {
         String sql = "INSERT INTO citas "
                 + "(dnipac, iddoc, fechacita, horacita, motivo, diagnostico, tratamiento, estado) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConexionMySQL.getConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+             PreparedStatement ps = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             asignarDatos(ps, cita);
             ps.executeUpdate();
+            try (ResultSet claves = ps.getGeneratedKeys()) {
+                if (claves.next()) {
+                    return claves.getInt(1);
+                }
+            }
+            throw new IllegalStateException("MySQL no devolvió el ID generado para la cita.");
         } catch (SQLException e) {
             throw new IllegalStateException("No se pudo guardar la cita", e);
         }
     }
 
-    public void modificarCita(Cita cita) {
+    public int modificarCita(Cita cita) {
         String sql = "UPDATE citas SET dnipac = ?, iddoc = ?, fechacita = ?, horacita = ?, "
                 + "motivo = ?, diagnostico = ?, tratamiento = ?, estado = ? WHERE idcita = ?";
 
@@ -89,19 +128,19 @@ public class CitaDAOMySQL {
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             asignarDatos(ps, cita);
             ps.setInt(9, cita.getIdcita());
-            ps.executeUpdate();
+            return ps.executeUpdate();
         } catch (SQLException e) {
             throw new IllegalStateException("No se pudo modificar la cita", e);
         }
     }
 
-    public void eliminarCita(int idCita) {
+    public int eliminarCita(int idCita) {
         String sql = "DELETE FROM citas WHERE idcita = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, idCita);
-            ps.executeUpdate();
+             return ps.executeUpdate();
         } catch (SQLException e) {
             throw new IllegalStateException("No se pudo eliminar la cita", e);
         }
@@ -111,7 +150,7 @@ public class CitaDAOMySQL {
         ps.setString(1, cita.getDniPaciente());
         ps.setInt(2, cita.getIdDoctor());
         ps.setDate(3, java.sql.Date.valueOf(cita.getFecha()));
-        ps.setTime(4, java.sql.Time.valueOf(cita.getHora()));
+        ps.setString(4, cita.getHora());
         setNullableString(ps, 5, cita.getMotivo());
         setNullableString(ps, 6, cita.getDiagnostico());
         setNullableString(ps, 7, cita.getTratamiento());

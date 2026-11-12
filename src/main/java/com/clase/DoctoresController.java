@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
@@ -46,6 +47,7 @@ public class DoctoresController implements Initializable {
     private TableColumn<Doctor, String> coliddoc, colapeldoc, colnomedoc, colmovildoc, colespedoc;
 
     private final ObservableList<Doctor> doctores = FXCollections.observableArrayList();
+    private Consumer<Doctor> alSeleccionarDoctor = doctor -> { };
     private boolean doctorexiste;
 
     @Override
@@ -92,8 +94,13 @@ public class DoctoresController implements Initializable {
         tablaDoctores.getSelectionModel().selectedItemProperty().addListener((observable, anterior, nuevo) -> {
             if (nuevo != null) {
                 cargarDoctor(nuevo);
+                alSeleccionarDoctor.accept(nuevo);
             }
         });
+    }
+
+    void setAlSeleccionarDoctor(Consumer<Doctor> alSeleccionarDoctor) {
+        this.alSeleccionarDoctor = alSeleccionarDoctor;
     }
 
     private void cargarDoctor(Doctor doctor) {
