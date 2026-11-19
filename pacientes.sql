@@ -31,9 +31,9 @@ CREATE TABLE `pacientes` (
   `dnipac` varchar(9) NOT NULL,
   `apelpac` varchar(128) NOT NULL,
   `nompac` varchar(128) NOT NULL,
-  `nacimientopac` date NOT NULL,
-  `movilpac` varchar(10) NOT NULL,
-  `mailpac` varchar(128) DEFAULT NULL,
+  `nacpac` date NOT NULL,
+  `movilpac` varchar(12) NOT NULL,
+  `emailpac` varchar(128) DEFAULT NULL,
   `dirpac` varchar(256) NOT NULL,
   `propac` varchar(64) NOT NULL,
   `munipac` varchar(64) NOT NULL

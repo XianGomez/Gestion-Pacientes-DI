@@ -29,14 +29,14 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `citas` (
   `idcita` int NOT NULL,
-  `dnipac` varchar(9) NOT NULL,
-  `iddoc` int NOT NULL,
+  `citadnipac` varchar(9) NOT NULL,
+  `citadoc` int NOT NULL,
   `fechacita` date NOT NULL,
-  `horacita` time NOT NULL,
+  `horacita` varchar(8) NOT NULL,
   `motivo` varchar(200) DEFAULT NULL,
   `diagnostico` text,
   `tratamiento` text,
-  `estado` varchar(20) DEFAULT 'Pendiente'
+  `estadocita` varchar(20) DEFAULT 'Pendiente'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -48,8 +48,8 @@ CREATE TABLE `citas` (
 --
 ALTER TABLE `citas`
   ADD PRIMARY KEY (`idcita`),
-  ADD KEY `dnipac` (`dnipac`),
-  ADD KEY `iddoc` (`iddoc`);
+  ADD KEY `citadnipac` (`citadnipac`),
+  ADD KEY `citadoc` (`citadoc`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -69,8 +69,8 @@ ALTER TABLE `citas`
 -- Filtros para la tabla `citas`
 --
 ALTER TABLE `citas`
-  ADD CONSTRAINT `citas_ibfk_1` FOREIGN KEY (`dnipac`) REFERENCES `pacientes` (`dnipac`),
-  ADD CONSTRAINT `citas_ibfk_2` FOREIGN KEY (`iddoc`) REFERENCES `doctores` (`iddoc`);
+  ADD CONSTRAINT `citas_ibfk_1` FOREIGN KEY (`citadnipac`) REFERENCES `pacientes` (`dnipac`),
+  ADD CONSTRAINT `citas_ibfk_2` FOREIGN KEY (`citadoc`) REFERENCES `doctores` (`iddoc`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

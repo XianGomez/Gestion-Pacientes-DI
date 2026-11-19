@@ -12,8 +12,8 @@ import java.util.List;
 
 public class CitaDAOMySQL implements CitaDAO {
     public List<Cita> cargarCitas() {
-        String sql = "SELECT idcita, dnipac, iddoc, fechacita, horacita, motivo, "
-                + "diagnostico, tratamiento, estado FROM citas ORDER BY fechacita, horacita";
+        String sql = "SELECT idcita, citadnipac, citadoc, fechacita, horacita, motivo, "
+                + "diagnostico, tratamiento, estadocita FROM citas ORDER BY fechacita, horacita";
         List<Cita> citas = new ArrayList<>();
 
         try (Connection conexion = ConexionMySQL.getConexion();
@@ -22,14 +22,14 @@ public class CitaDAOMySQL implements CitaDAO {
             while (rs.next()) {
                 citas.add(new Cita(
                         rs.getInt("idcita"),
-                        rs.getString("dnipac"),
-                        rs.getInt("iddoc"),
+                        rs.getString("citadnipac"),
+                        rs.getInt("citadoc"),
                         rs.getDate("fechacita").toLocalDate(),
                         rs.getString("horacita"),
                         rs.getString("motivo"),
                         rs.getString("diagnostico"),
                         rs.getString("tratamiento"),
-                        rs.getString("estado")));
+                        rs.getString("estadocita")));
             }
         } catch (SQLException e) {
             System.out.println("Error al cargar las citas: " + e.getMessage());
@@ -39,8 +39,8 @@ public class CitaDAOMySQL implements CitaDAO {
     }
 
     public Cita buscarCita(int idCita) {
-        String sql = "SELECT idcita, dnipac, iddoc, fechacita, horacita, motivo, "
-                + "diagnostico, tratamiento, estado FROM citas WHERE idcita = ?";
+        String sql = "SELECT idcita, citadnipac, citadoc, fechacita, horacita, motivo, "
+                + "diagnostico, tratamiento, estadocita FROM citas WHERE idcita = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -49,14 +49,14 @@ public class CitaDAOMySQL implements CitaDAO {
                 if (rs.next()) {
                     return new Cita(
                             rs.getInt("idcita"),
-                            rs.getString("dnipac"),
-                            rs.getInt("iddoc"),
+                            rs.getString("citadnipac"),
+                            rs.getInt("citadoc"),
                             rs.getDate("fechacita").toLocalDate(),
                             rs.getString("horacita"),
                             rs.getString("motivo"),
                             rs.getString("diagnostico"),
                             rs.getString("tratamiento"),
-                            rs.getString("estado"));
+                            rs.getString("estadocita"));
                 }
             }
         } catch (SQLException e) {
@@ -67,11 +67,11 @@ public class CitaDAOMySQL implements CitaDAO {
     }
 
     public List<Cita> cargarCitaspaciente(String dniPaciente) {
-        String sql = "SELECT c.idcita, c.dnipac, c.iddoc, c.fechacita, c.horacita, "
-                + "c.motivo, c.diagnostico, c.tratamiento, c.estado, "
-                + "CONCAT(d.apeldoc, ', ', d.nomedoc) AS doctor, d.espedoc "
-                + "FROM citas c JOIN doctores d ON d.iddoc = c.iddoc "
-                + "WHERE c.dnipac = ? ORDER BY c.fechacita, c.horacita";
+        String sql = "SELECT c.idcita, c.citadnipac, c.citadoc, c.fechacita, c.horacita, "
+                + "c.motivo, c.diagnostico, c.tratamiento, c.estadocita, "
+                + "CONCAT(d.apeldoc, ', ', d.nomdoc) AS doctor, d.espedoc "
+                + "FROM citas c JOIN doctores d ON d.iddoc = c.citadoc "
+                + "WHERE c.citadnipac = ? ORDER BY c.fechacita, c.horacita";
         List<Cita> citas = new ArrayList<>();
 
         try (Connection conexion = ConexionMySQL.getConexion();
@@ -81,14 +81,14 @@ public class CitaDAOMySQL implements CitaDAO {
                 while (rs.next()) {
                     citas.add(new Cita(
                             rs.getInt("idcita"),
-                            rs.getString("dnipac"),
-                            rs.getInt("iddoc"),
+                            rs.getString("citadnipac"),
+                            rs.getInt("citadoc"),
                             rs.getDate("fechacita").toLocalDate(),
                             rs.getString("horacita"),
                             rs.getString("motivo"),
                             rs.getString("diagnostico"),
                             rs.getString("tratamiento"),
-                            rs.getString("estado"),
+                            rs.getString("estadocita"),
                             rs.getString("doctor"),
                             rs.getString("espedoc")));
                 }
@@ -102,7 +102,7 @@ public class CitaDAOMySQL implements CitaDAO {
 
     public int guardarCita(Cita cita) {
         String sql = "INSERT INTO citas "
-                + "(dnipac, iddoc, fechacita, horacita, motivo, diagnostico, tratamiento, estado) "
+                + "(citadnipac, citadoc, fechacita, horacita, motivo, diagnostico, tratamiento, estadocita) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConexionMySQL.getConexion();
@@ -122,8 +122,8 @@ public class CitaDAOMySQL implements CitaDAO {
     }
 
     public int modificarCita(Cita cita) {
-        String sql = "UPDATE citas SET dnipac = ?, iddoc = ?, fechacita = ?, horacita = ?, "
-                + "motivo = ?, diagnostico = ?, tratamiento = ?, estado = ? WHERE idcita = ?";
+        String sql = "UPDATE citas SET citadnipac = ?, citadoc = ?, fechacita = ?, horacita = ?, "
+                + "motivo = ?, diagnostico = ?, tratamiento = ?, estadocita = ? WHERE idcita = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {

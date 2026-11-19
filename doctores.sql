@@ -29,10 +29,10 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `doctores` (
   `iddoc` int NOT NULL,
-  `nomedoc` varchar(128) NOT NULL,
+  `nomdoc` varchar(128) NOT NULL,
   `coledoc` tinyint(1) NOT NULL,
   `movildoc` varchar(16) NOT NULL,
-  `maildoc` varchar(128) NOT NULL,
+  `emaildoc` varchar(128) NOT NULL,
   `espedoc` varchar(64) NOT NULL,
   `apeldoc` varchar(128) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -41,7 +41,7 @@ CREATE TABLE `doctores` (
 -- Volcado de datos para la tabla `doctores`
 --
 
-INSERT INTO `doctores` (`iddoc`, `nomedoc`, `coledoc`, `movildoc`, `maildoc`, `espedoc`, `apeldoc`) VALUES
+INSERT INTO `doctores` (`iddoc`, `nomdoc`, `coledoc`, `movildoc`, `emaildoc`, `espedoc`, `apeldoc`) VALUES
 (5, 'Santiago', 1, '666666666', '', 'Dermatología', 'Garcia Garcia'),
 (6, 'Asd', 0, '666666666', 'asd', 'Endocrinología', 'Asd');
 

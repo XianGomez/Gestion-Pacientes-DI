@@ -14,7 +14,7 @@ public class PacienteDAOMySQL implements PacienteDAO{
     @Override 
     public void guardarPaciente(Paciente paciente) {
         String sql = "INSERT INTO pacientes "
-                + "(dnipac, apelpac, nompac, nacimientopac, movilpac, mailpac, dirpac, propac, munipac) "
+                + "(dnipac, apelpac, nompac, nacpac, movilpac, emailpac, dirpac, propac, munipac) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConexionMySQL.getConexion();
@@ -79,8 +79,8 @@ public class PacienteDAOMySQL implements PacienteDAO{
     // Buscar un paciente por DNI
     public Paciente buscarPaciente(String dni) {
 
-        String sql = "SELECT dnipac, apelpac, nompac, nacimientopac, movilpac, "
-            + " mailpac, dirpac, propac, munipac "
+        String sql = "SELECT dnipac, apelpac, nompac, nacpac, movilpac, "
+            + " emailpac, dirpac, propac, munipac "
                 + " FROM pacientes "
                 + " WHERE dnipac = ?";
 
@@ -97,9 +97,9 @@ public class PacienteDAOMySQL implements PacienteDAO{
                             rs.getString("dnipac"),
                             rs.getString("apelpac"),
                             rs.getString("nompac"),
-                            rs.getDate("nacimientopac").toLocalDate(),
+                            rs.getDate("nacpac").toLocalDate(),
                             rs.getString("movilpac"),
-                            rs.getString("mailpac"),
+                            rs.getString("emailpac"),
                             rs.getString("dirpac"),
                             rs.getString("propac"),
                             rs.getString("munipac"));
@@ -117,8 +117,8 @@ public class PacienteDAOMySQL implements PacienteDAO{
 
     public Paciente buscaPacDni(String dni) {
 
-        String sql = "SELECT dnipac, apelpac, nompac, nacimientopac, movilpac, "
-            + " mailpac, dirpac, propac, munipac "
+        String sql = "SELECT dnipac, apelpac, nompac, nacpac, movilpac, "
+            + " emailpac, dirpac, propac, munipac "
                 + " FROM pacientes "
                 + " WHERE dnipac = ?";
 
@@ -135,9 +135,9 @@ public class PacienteDAOMySQL implements PacienteDAO{
                             rs.getString("dnipac"),
                             rs.getString("apelpac"),
                             rs.getString("nompac"),
-                            rs.getDate("nacimientopac").toLocalDate(),
+                            rs.getDate("nacpac").toLocalDate(),
                             rs.getString("movilpac"),
-                            rs.getString("mailpac"),
+                            rs.getString("emailpac"),
                             rs.getString("dirpac"),
                             rs.getString("propac"),
                             rs.getString("munipac"));
@@ -175,8 +175,8 @@ public class PacienteDAOMySQL implements PacienteDAO{
                 + "apelpac = ?, "
                 + "nompac = ?, "
                 + "movilpac = ?, "
-                + "mailpac = ?, "
-                + "nacimientopac = ?, "
+                + "emailpac = ?, "
+                + "nacpac = ?, "
                 + "dirpac = ?, "
                 + "propac = ?, "
                 + "munipac = ? "

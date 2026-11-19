@@ -12,29 +12,9 @@ import com.clase.modelo.Doctor;
 
 public class DoctorDAOMySQL implements DoctorDAO {
 
-    private void crearTablaSiNoExiste() {
-        String sql = "CREATE TABLE IF NOT EXISTS doctores ("
-                + "iddoc INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
-                + "apeldoc VARCHAR(128) NOT NULL, "
-                + "nomedoc VARCHAR(128) NOT NULL, "
-                + "movildoc VARCHAR(15) NOT NULL, "
-                + "maildoc VARCHAR(128), "
-                + "coledoc TINYINT(1) NOT NULL, "
-                + "espedoc VARCHAR(128) NOT NULL)";
-
-        try (Connection conexion = ConexionMySQL.getConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Error al preparar la tabla de doctores: " + e.getMessage());
-        }
-    }
-
     @Override
     public void guardarDoctor(Doctor doctor) {
-        crearTablaSiNoExiste();
-
-        String sql = "INSERT INTO doctores (apeldoc, nomedoc, movildoc, maildoc, coledoc, espedoc) "
+        String sql = "INSERT INTO doctores (apeldoc, nomdoc, movildoc, emaildoc, coledoc, espedoc) "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConexionMySQL.getConexion();
@@ -55,11 +35,10 @@ public class DoctorDAOMySQL implements DoctorDAO {
 
     @Override
     public List<Doctor> cargarDoctores() {
-        crearTablaSiNoExiste();
         List<Doctor> doctores = new ArrayList<>();
 
-        String sql = "SELECT iddoc, apeldoc, nomedoc, movildoc, maildoc, coledoc, espedoc "
-                + "FROM doctores ORDER BY apeldoc, nomedoc";
+        String sql = "SELECT iddoc, apeldoc, nomdoc, movildoc, emaildoc, coledoc, espedoc "
+                + "FROM doctores ORDER BY apeldoc, nomdoc";
 
         try (Connection conexion = ConexionMySQL.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql);
@@ -68,9 +47,9 @@ public class DoctorDAOMySQL implements DoctorDAO {
                 Doctor doctor = new Doctor(
                         rs.getString("iddoc"),
                         rs.getString("apeldoc"),
-                        rs.getString("nomedoc"),
+                        rs.getString("nomdoc"),
                         rs.getString("movildoc"),
-                        rs.getString("maildoc"),
+                        rs.getString("emaildoc"),
                         rs.getBoolean("coledoc"),
                         rs.getString("espedoc"));
                 doctores.add(doctor);
@@ -83,8 +62,7 @@ public class DoctorDAOMySQL implements DoctorDAO {
     }
 
     public Doctor buscaDocId(String iddoc) {
-        crearTablaSiNoExiste();
-        String sql = "SELECT iddoc, apeldoc, nomedoc, movildoc, maildoc, coledoc, espedoc "
+        String sql = "SELECT iddoc, apeldoc, nomdoc, movildoc, emaildoc, coledoc, espedoc "
                 + "FROM doctores WHERE iddoc = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
@@ -96,9 +74,9 @@ public class DoctorDAOMySQL implements DoctorDAO {
                     return new Doctor(
                             rs.getString("iddoc"),
                             rs.getString("apeldoc"),
-                            rs.getString("nomedoc"),
+                            rs.getString("nomdoc"),
                             rs.getString("movildoc"),
-                            rs.getString("maildoc"),
+                            rs.getString("emaildoc"),
                             rs.getBoolean("coledoc"),
                             rs.getString("espedoc"));
                 }
@@ -111,7 +89,6 @@ public class DoctorDAOMySQL implements DoctorDAO {
     }
 
     public void eliminarDoctor(String iddoc) {
-        crearTablaSiNoExiste();
         String sql = "DELETE FROM doctores WHERE iddoc = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
@@ -125,9 +102,8 @@ public class DoctorDAOMySQL implements DoctorDAO {
     }
 
     public void modificarDoctor(String iddoc, Doctor doctor) {
-        crearTablaSiNoExiste();
-        String sql = "UPDATE doctores SET apeldoc = ?, nomedoc = ?, movildoc = ?, "
-                + "maildoc = ?, coledoc = ?, espedoc = ? WHERE iddoc = ?";
+        String sql = "UPDATE doctores SET apeldoc = ?, nomdoc = ?, movildoc = ?, "
+                + "emaildoc = ?, coledoc = ?, espedoc = ? WHERE iddoc = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -152,9 +128,8 @@ public class DoctorDAOMySQL implements DoctorDAO {
 
     @Override
     public List<Doctor> cargarDoctoresEspec(String espedoc) {
-        crearTablaSiNoExiste();
         List<Doctor> doctores = new ArrayList<>();
-        String sql = "SELECT iddoc, apeldoc, nomedoc, movildoc, maildoc, coledoc, espedoc "
+        String sql = "SELECT iddoc, apeldoc, nomdoc, movildoc, emaildoc, coledoc, espedoc "
                 + "FROM doctores WHERE espedoc = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
@@ -165,9 +140,9 @@ public class DoctorDAOMySQL implements DoctorDAO {
                     doctores.add(new Doctor(
                             rs.getString("iddoc"),
                             rs.getString("apeldoc"),
-                            rs.getString("nomedoc"),
+                            rs.getString("nomdoc"),
                             rs.getString("movildoc"),
-                            rs.getString("maildoc"),
+                            rs.getString("emaildoc"),
                             rs.getBoolean("coledoc"),
                             rs.getString("espedoc")));
                 }
