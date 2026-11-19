@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `citas` (
   `idcita` int NOT NULL,
   `citadnipac` varchar(9) NOT NULL,
-  `citadoc` int NOT NULL,
+  `citaiddoc` int NOT NULL,
   `fechacita` date NOT NULL,
   `horacita` varchar(8) NOT NULL,
   `motivo` varchar(200) DEFAULT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE `citas` (
 ALTER TABLE `citas`
   ADD PRIMARY KEY (`idcita`),
   ADD KEY `citadnipac` (`citadnipac`),
-  ADD KEY `citadoc` (`citadoc`);
+  ADD KEY `citaiddoc` (`citaiddoc`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -70,7 +70,7 @@ ALTER TABLE `citas`
 --
 ALTER TABLE `citas`
   ADD CONSTRAINT `citas_ibfk_1` FOREIGN KEY (`citadnipac`) REFERENCES `pacientes` (`dnipac`),
-  ADD CONSTRAINT `citas_ibfk_2` FOREIGN KEY (`citadoc`) REFERENCES `doctores` (`iddoc`);
+  ADD CONSTRAINT `citas_ibfk_2` FOREIGN KEY (`citaiddoc`) REFERENCES `doctores` (`iddoc`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
