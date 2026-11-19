@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,7 +26,7 @@ public class DoctorDAOMySQL implements DoctorDAO {
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo preparar la tabla de doctores", e);
+            System.out.println("Error al preparar la tabla de doctores: " + e.getMessage());
         }
     }
 
@@ -39,7 +38,7 @@ public class DoctorDAOMySQL implements DoctorDAO {
                 + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConexionMySQL.getConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setString(1, doctor.getApeldoc());
             ps.setString(2, doctor.getNomedoc());
             ps.setString(3, doctor.getMovildoc());
@@ -48,14 +47,9 @@ public class DoctorDAOMySQL implements DoctorDAO {
             ps.setString(6, doctor.getEspedoc());
             ps.executeUpdate();
 
-            try (ResultSet keys = ps.getGeneratedKeys()) {
-                if (!keys.next()) {
-                    throw new IllegalStateException("La base de datos no devolvió el ID del doctor");
-                }
-                doctor.setIddoc(String.valueOf(keys.getLong(1)));
-            }
+            System.out.println("Doctor guardado correctamente.");
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo guardar el doctor en la base de datos", e);
+            System.out.println("Error al guardar el doctor: " + e.getMessage());
         }
     }
 
@@ -82,7 +76,7 @@ public class DoctorDAOMySQL implements DoctorDAO {
                 doctores.add(doctor);
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudieron cargar los doctores", e);
+            System.out.println("Error al cargar doctores: " + e.getMessage());
         }
 
         return doctores;
@@ -124,8 +118,9 @@ public class DoctorDAOMySQL implements DoctorDAO {
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setString(1, iddoc);
             ps.executeUpdate();
+            System.out.println("Doctor eliminado correctamente.");
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo eliminar el doctor de la base de datos", e);
+            System.out.println("Error eliminar doctor: " + e.getMessage());
         }
     }
 
@@ -144,8 +139,9 @@ public class DoctorDAOMySQL implements DoctorDAO {
             ps.setString(6, doctor.getEspedoc());
             ps.setString(7, iddoc);
             ps.executeUpdate();
+            System.out.println("Doctor modificado correctamente.");
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo modificar el doctor en la base de datos", e);
+            System.out.println("Error al modificar el doctor: " + e.getMessage());
         }
     }
 
@@ -159,7 +155,7 @@ public class DoctorDAOMySQL implements DoctorDAO {
         crearTablaSiNoExiste();
         List<Doctor> doctores = new ArrayList<>();
         String sql = "SELECT iddoc, apeldoc, nomedoc, movildoc, maildoc, coledoc, espedoc "
-                + "FROM doctores WHERE espedoc = ? ORDER BY apeldoc, nomedoc";
+                + "FROM doctores WHERE espedoc = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -177,7 +173,7 @@ public class DoctorDAOMySQL implements DoctorDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudieron buscar doctores por especialidad", e);
+            System.out.println("Error al buscar doctores por especialidad: " + e.getMessage());
         }
 
         return doctores;

@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="rootVentana" minHeight="0.0" minWidth="0.0" prefHeight="800.0" prefWidth="1220.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.VentanaController">
+<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="800.0" prefWidth="1220.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.VentanaController">
    <children>
       <VBox>
          <children>
@@ -33,7 +33,7 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Informes">
                   <items>
-                    <MenuItem mnemonicParsing="false" onAction="#exportarPacientesPDF" text="Exportar pacientes a PDF" />
+                    <MenuItem fx:id="informePacientes" mnemonicParsing="false" onAction="#informePacientes" text="Informe Pacientes" />
                   </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Acerca">
@@ -66,7 +66,7 @@
                   </Button>
               </items>
             </ToolBar>
-            <TabPane prefHeight="778.0" prefWidth="1220.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+            <TabPane fx:id="tabPanePrincipal" prefHeight="778.0" prefWidth="1220.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                <tabs>
                   <Tab text="Pacientes">
                      <content>
@@ -78,7 +78,7 @@
                         <fx:include fx:id="doctores" source="doctores.fxml" />
                      </content>
                   </Tab>
-                  <Tab text="Citas">
+                  <Tab fx:id="tabCitas" text="Citas">
                      <content>
                         <fx:include fx:id="citas" source="citas.fxml" />
                      </content>

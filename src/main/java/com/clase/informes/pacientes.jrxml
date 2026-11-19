@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.5.final using JasperReports Library version 6.21.5-74d586df47b25dbd05bd0957999819196e59934a  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="pacientes" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="18efe20b-5b80-47af-96ae-b80928bc5708">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="bbdd"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<queryString>
+		<![CDATA[SELECT DNIPAC, APELPAC, NOMPAC, MOVILPAC FROM pacientes ORDER BY NOMPAC]]>
+	</queryString>
+	<field name="DNIPAC" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="dnipac"/>
+		<property name="com.jaspersoft.studio.field.label" value="DNIPAC"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pacientes"/>
+	</field>
+	<field name="APELPAC" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="apelpac"/>
+		<property name="com.jaspersoft.studio.field.label" value="APELPAC"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pacientes"/>
+	</field>
+	<field name="NOMPAC" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nompac"/>
+		<property name="com.jaspersoft.studio.field.label" value="NOMPAC"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pacientes"/>
+	</field>
+	<field name="MOVILPAC" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="movilpac"/>
+		<property name="com.jaspersoft.studio.field.label" value="MOVILPAC"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pacientes"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="107" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="0" width="79" height="67" uuid="b66d805c-a479-4445-a1aa-e0f88f6f42f8"/>
+				<box topPadding="6" leftPadding="16" bottomPadding="6" rightPadding="6"/>
+				<imageExpression><![CDATA["C:/Users/a23xiangd.TEIS/projectoclinica/src/main/resources/com/clase/img/salud.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="-10" y="70" width="100" height="30" uuid="13394198-4eca-4176-aa63-3cfb5dd56f62"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Sanidad Teis]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="57" splitType="Stretch">
+			<staticText>
+				<reportElement x="300" y="13" width="200" height="30" uuid="9e1cc574-66be-42fe-aed0-3c3ec47099a2"/>
+				<box padding="0"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LISTADO PACIENTES]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="10" width="180" height="30" uuid="ed305b6d-6b24-4b0d-9cac-366f1558ae44"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Código]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="180" y="10" width="200" height="30" uuid="e8daadc6-ab7e-4409-ba40-40f3c04ed948"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Apellidos]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="380" y="10" width="200" height="30" uuid="f284be35-250e-40f6-8cb0-56cb17f780ba"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Nombre]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="580" y="10" width="200" height="30" uuid="e02eb5f4-e87e-4a95-93bd-4f5aa95da9a6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Movil]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="50" width="800" height="1" uuid="91696926-b549-4d5c-9599-17432a498903"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="20" width="179" height="30" uuid="a41d9536-077c-4114-8e91-b9e87c9d5888"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{DNIPAC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="180" y="20" width="200" height="30" uuid="7d75ea00-0e91-447b-85eb-f591b5a182f1"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{APELPAC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="380" y="20" width="200" height="30" uuid="85ec147e-80b7-425c-a81d-403264b618e0"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{NOMPAC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="580" y="20" width="200" height="30" uuid="b41cec86-0ee0-43f1-850b-9683220bd0af"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{MOVILPAC}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField>
+				<reportElement x="730" y="24" width="38" height="30" uuid="108db570-d7d6-4103-8822-0d0458c6e65b"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="770" y="24" width="40" height="30" uuid="17dcaee8-59d1-4911-9b1c-3b74a2e62861"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="100" splitType="Stretch"/>
+	</summary>
+</jasperReport>

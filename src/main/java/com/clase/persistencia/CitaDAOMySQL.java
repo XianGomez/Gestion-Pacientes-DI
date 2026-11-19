@@ -10,7 +10,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CitaDAOMySQL {
+public class CitaDAOMySQL implements CitaDAO {
     public List<Cita> cargarCitas() {
         String sql = "SELECT idcita, dnipac, iddoc, fechacita, horacita, motivo, "
                 + "diagnostico, tratamiento, estado FROM citas ORDER BY fechacita, horacita";
@@ -32,7 +32,7 @@ public class CitaDAOMySQL {
                         rs.getString("estado")));
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudieron cargar las citas", e);
+            System.out.println("Error al cargar las citas: " + e.getMessage());
         }
 
         return citas;
@@ -60,13 +60,13 @@ public class CitaDAOMySQL {
                 }
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo buscar la cita", e);
+            System.out.println("Error al buscar cita por ID: " + e.getMessage());
         }
 
         return null;
     }
 
-    public List<Cita> cargarHistorialPaciente(String dniPaciente) {
+    public List<Cita> cargarCitaspaciente(String dniPaciente) {
         String sql = "SELECT c.idcita, c.dnipac, c.iddoc, c.fechacita, c.horacita, "
                 + "c.motivo, c.diagnostico, c.tratamiento, c.estado, "
                 + "CONCAT(d.apeldoc, ', ', d.nomedoc) AS doctor, d.espedoc "
@@ -94,7 +94,7 @@ public class CitaDAOMySQL {
                 }
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo cargar el historial del paciente", e);
+            System.out.println("Error al cargar citas paciente: " + e.getMessage());
         }
 
         return citas;
@@ -114,9 +114,10 @@ public class CitaDAOMySQL {
                     return claves.getInt(1);
                 }
             }
-            throw new IllegalStateException("MySQL no devolvió el ID generado para la cita.");
+            return 0;
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo guardar la cita", e);
+            System.out.println("Error al guardar la cita: " + e.getMessage());
+            return 0;
         }
     }
 
@@ -128,21 +129,27 @@ public class CitaDAOMySQL {
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             asignarDatos(ps, cita);
             ps.setInt(9, cita.getIdcita());
-            return ps.executeUpdate();
+            int filas = ps.executeUpdate();
+            System.out.println("Cita modificada correctamente.");
+            return filas;
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo modificar la cita", e);
+            System.out.println("Error al modificar la cita: " + e.getMessage());
+            return 0;
         }
     }
 
-    public int eliminarCita(int idCita) {
+    public int eliminaCita(int idCita) {
         String sql = "DELETE FROM citas WHERE idcita = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, idCita);
-             return ps.executeUpdate();
+            int filas = ps.executeUpdate();
+            System.out.println("Cita eliminada correctamente.");
+            return filas;
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo eliminar la cita", e);
+            System.out.println("Error al eliminar la cita: " + e.getMessage());
+            return 0;
         }
     }
 
@@ -164,4 +171,5 @@ public class CitaDAOMySQL {
             ps.setString(index, value.trim());
         }
     }
+
 }

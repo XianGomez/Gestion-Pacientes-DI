@@ -4,13 +4,20 @@ import com.clase.modelo.Cita;
 import com.clase.modelo.Doctor;
 import com.clase.modelo.Paciente;
 import com.clase.persistencia.CitaDAOMySQL;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -51,16 +58,22 @@ public class CitasController implements Initializable {
 
     private final CitaDAOMySQL citaDao = new CitaDAOMySQL();
 
+    boolean citaexiste = false;
+    private Paciente pacienteSeleccionado;
+    private Doctor doctorSeleccionado;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         idCita.setEditable(false);
         idDoctor.setEditable(false);
+        dniPaciente.setEditable(false);
         ToggleGroup estados = new ToggleGroup();
         pendiente.setToggleGroup(estados);
         atendida.setToggleGroup(estados);
         anulada.setToggleGroup(estados);
         pendiente.setSelected(true);
 
+        // Configuramos las columnas de la tabla para que muestren los datos de las citas
         colIdHistorial.setCellValueFactory(new PropertyValueFactory<>("idcita"));
         colFechaHistorial.setCellValueFactory(cell -> new ReadOnlyStringWrapper(
                 cell.getValue().getFecha() == null ? "" : cell.getValue().getFecha().toString()));
@@ -73,146 +86,187 @@ public class CitasController implements Initializable {
         colTratamientoHistorial.setCellValueFactory(new PropertyValueFactory<>("tratamiento"));
         colEstadoHistorial.setCellValueFactory(new PropertyValueFactory<>("estado"));
         tablaHistorial.setPlaceholder(new Label("No hay citas registradas para este paciente."));
-        dniPaciente.textProperty().addListener((observable, anterior, nuevo) -> tablaHistorial.getItems().clear());
+
+        // Carga una cita al seleccionarla en la tabla
+        // en el formulario para poder modificarla o eliminarla
         tablaHistorial.getSelectionModel().selectedItemProperty().addListener((observable, anterior, cita) -> {
             if (cita != null) {
                 mostrarCita(cita);
             }
         });
-        dniPaciente.focusedProperty().addListener((observable, anterior, enfocado) -> {
-            if (!enfocado && !dniPaciente.getText().trim().isEmpty()) {
-                consultarHistorial(false);
-            }
-        });
 
-        hora.setEditable(true);
+        // Inicialización de la vista de citas
         hora.setPromptText("HH:mm");
-        for (int minuto = 0; minuto < 24 * 60; minuto += 30) {
-            hora.getItems().add(String.format("%02d:%02d", minuto / 60, minuto % 60));
+        cargarHorario();
+        if (dniPaciente.getText() != null && !dniPaciente.getText().isEmpty()) {
+            cargarHistorial();
         }
     }
 
+    // el horario sale del fichero horario.json
+    private void cargarHorario() {
+        try (InputStream entrada = getClass().getResourceAsStream("/com/clase/data/horario.json")) {
+            if (entrada == null) {
+                throw new IOException("No se encontró horario.json");
+            }
+
+            // Leemos el JSON y lo convertimos en un objeto JsonObject
+            JsonObject json = JsonParser.parseReader(new InputStreamReader(entrada, StandardCharsets.UTF_8))
+                    .getAsJsonObject();
+
+            // Obtenemos el array "horario" del JSON
+            JsonArray horas = json.getAsJsonArray("horario");
+
+            // Recorremos todas las horas y las añadimos al ComboBox
+            for (var h : horas) {
+                hora.getItems().add(h.getAsString());
+            }
+        } catch (IOException | RuntimeException e) {
+            hora.getItems().clear();
+            System.err.println("ERROR al cargar el horario: " + e.getMessage());
+        }
+    }
+
+    // cargar las citas del paciente en la tabla
     @FXML
     private void cargarHistorial() {
-        consultarHistorial(true);
-    }
-
-    void seleccionarPaciente(Paciente paciente) {
-        dniPaciente.setText(paciente.getDni());
-        idDoctor.clear();
-        limpiarFormularioCita();
-        consultarHistorial(false);
-    }
-
-    void seleccionarDoctor(Doctor doctor) {
-        idDoctor.setText(doctor.getIddoc());
-        if (!dniPaciente.getText().trim().isEmpty()) {
-            consultarHistorial(false);
-        }
-    }
-
-    private void consultarHistorial(boolean validarDni) {
         String dni = dniPaciente.getText().trim();
         if (dni.isEmpty()) {
             tablaHistorial.getItems().clear();
-            if (validarDni) {
-                mostrarError("Indica el DNI del paciente", "Escribe el DNI para consultar su historial de citas.");
-            }
             return;
         }
 
-        try {
-            List<Cita> citas = citaDao.cargarHistorialPaciente(dni);
-            tablaHistorial.getItems().setAll(citas);
-            if (validarDni && citas.isEmpty()) {
-                mostrarInformacion("Historial vacío",
-                        "No hay citas guardadas para el DNI " + dni + ".");
-            }
-        } catch (IllegalStateException e) {
-            mostrarError("Error de base de datos", detalle(e));
+        List<Cita> citas = citaDao.cargarCitaspaciente(dni);
+        tablaHistorial.getItems().setAll(citas);
+        tablaHistorial.getSelectionModel().clearSelection();
+        tablaHistorial.refresh();
+    }
+
+    // Recibe el paciente seleccionado
+    void seleccionarPaciente(Paciente paciente) {
+        pacienteSeleccionado = paciente;
+        dniPaciente.setText(paciente.getDni());
+        limpiarDatosCita();
+        cargarHistorial();
+    }
+
+    // Recibe el doctor seleccionado
+    void seleccionarDoctor(Doctor doctor) {
+        doctorSeleccionado = doctor;
+        idDoctor.setText(doctor.getIddoc());
+    }
+
+    void mostrarDatosSeleccionados() {
+        if (pacienteSeleccionado != null) {
+            dniPaciente.setText(pacienteSeleccionado.getDni());
+            cargarHistorial();
+        }
+        if (doctorSeleccionado != null) {
+            idDoctor.setText(doctorSeleccionado.getIddoc());
         }
     }
+
+    //FUNCION CRUD DE CITAS
 
     @FXML
     private void guardarCita() {
         try {
             String idTexto = idCita.getText().trim();
-            String dni = dniPaciente.getText().trim();
-            int id = idTexto.isEmpty() ? 0 : Integer.parseInt(idTexto);
+            int id = citaexiste && !idTexto.isEmpty() ? Integer.parseInt(idTexto) : 0;
             Cita cita = crearCita(id);
-            if (id == 0) {
-                cita.setIdcita(citaDao.guardarCita(cita));
-                idCita.setText(Integer.toString(cita.getIdcita()));
+
+            if (citaexiste) {
+                // Si la cita ya existe, la actualizamos en la base de datos
+                Alert alert3 = new Alert(Alert.AlertType.CONFIRMATION);
+                alert3.setTitle("Aviso");
+                alert3.setHeaderText(null);
+                alert3.setContentText("¿Desea Modificar datos del Cita?");
+                Optional<ButtonType> result2 = alert3.showAndWait();
+                if (result2.isPresent() && result2.get() == ButtonType.OK) {
+                    citaDao.modificarCita(cita);
+                    citaexiste = false; // importante sino siempre graba
+                    Alert alert4 = new Alert(Alert.AlertType.INFORMATION);
+                    alert4.setTitle("Aviso");
+                    alert4.setHeaderText(null);
+                    alert4.setContentText("Cita modificada en Base de Datos");
+                    alert4.showAndWait();
+                } else {
+                    return;
+                }
             } else {
-                if (citaDao.modificarCita(cita) == 0) {
-                    mostrarError("Cita no encontrada", "No existe una cita con ese ID para modificar.");
+                // Si la Cita no existe, la guardamos en la base de datos
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Aviso");
+                alert.setHeaderText(null);
+                alert.setContentText("¿Desea Grabar el Cita?");
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                    citaDao.guardarCita(cita);
+                    Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+                    alert2.setTitle("Aviso");
+                    alert2.setHeaderText(null);
+                    alert2.setContentText("Cita Guardada en Base de Datos");
+                    alert2.showAndWait();
+                } else {
                     return;
                 }
             }
-            consultarHistorial(false);
-            mostrarInformacion("Cita guardada", id == 0
-                    ? "La cita se ha guardado correctamente con el ID " + cita.getIdcita() + "."
-                    : "La cita se ha actualizado correctamente.");
+            limpiarDatosCita();
+            cargarHistorial();
         } catch (NumberFormatException e) {
             mostrarError("ID no válido", "El ID de la cita debe ser un número entero.");
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            mostrarError("No se pudo guardar la cita", e instanceof IllegalStateException
-                    ? detalle((IllegalStateException) e) : e.getMessage());
+        } catch (IllegalArgumentException e) {
+            mostrarError("No se pudo guardar la cita", e.getMessage());
         }
     }
 
     @FXML
     private void eliminarCita() {
-        String valor = idCita.getText().trim();
-        if (valor.isEmpty()) {
-            mostrarError("Indica el ID de la cita", "Busca o escribe el ID de la cita que quieres eliminar.");
-            return;
-        }
-
-        int id;
-        try {
-            id = Integer.parseInt(valor);
-        } catch (NumberFormatException e) {
-            mostrarError("ID no válido", "El ID de la cita debe ser un número entero.");
-            return;
-        }
-
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Eliminar cita");
-        confirmacion.setHeaderText("¿Quieres eliminar la cita " + id + "?");
-        if (confirmacion.showAndWait().filter(respuesta -> respuesta == ButtonType.OK).isPresent()) {
-            try {
-                if (citaDao.eliminarCita(id) == 0) {
-                    mostrarError("Cita no encontrada", "No existe una cita con ese ID para eliminar.");
-                    return;
-                }
-                limpiarFormularioCita();
-                consultarHistorial(false);
-                mostrarInformacion("Cita eliminada", "La cita se ha eliminado correctamente.");
-            } catch (IllegalStateException e) {
-                mostrarError("No se pudo eliminar la cita", detalle(e));
+        Cita citaSeleccionada = tablaHistorial.getSelectionModel().getSelectedItem();
+        if (citaSeleccionada != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmación");
+            alert.setHeaderText(null);
+            alert.setContentText("¿Está seguro de que desea eliminar la cita seleccionada?");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                citaDao.eliminaCita(citaSeleccionada.getIdcita());
+                limpiarDatosCita();
+                cargarHistorial();
+                Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+                infoAlert.setTitle("Información");
+                infoAlert.setHeaderText(null);
+                infoAlert.setContentText("Cita eliminada correctamente.");
+                infoAlert.showAndWait();
             }
+        } else {
+            Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+            infoAlert.setTitle("Información");
+            infoAlert.setHeaderText(null);
+            infoAlert.setContentText("Por favor, seleccione una cita para eliminar.");
+            infoAlert.showAndWait();
         }
     }
 
     @FXML
     private void limpiarCampos() {
-        limpiarFormularioCita();
+        pacienteSeleccionado = null;
+        doctorSeleccionado = null;
         idDoctor.clear();
         dniPaciente.clear();
+        limpiarDatosCita();
         tablaHistorial.getItems().clear();
-        tablaHistorial.getSelectionModel().clearSelection();
-        pendiente.getToggleGroup().selectToggle(null);
     }
 
-    private void limpiarFormularioCita() {
+    private void limpiarDatosCita() {
+        citaexiste = false;
         idCita.clear();
         motivo.clear();
         fecha.setValue(null);
         hora.setValue(null);
-        hora.getEditor().clear();
         diagnostico.clear();
         tratamiento.clear();
+        tablaHistorial.getSelectionModel().clearSelection();
         pendiente.setSelected(true);
     }
 
@@ -226,11 +280,8 @@ public class CitasController implements Initializable {
         if (fecha.getValue() == null) {
             throw new IllegalArgumentException("Selecciona la fecha de la cita.");
         }
-        String horaCita = hora.getEditor().getText().trim();
-        if (horaCita.isEmpty() && hora.getValue() != null) {
-            horaCita = hora.getValue();
-        }
-        if (horaCita.isEmpty()) {
+        String horaCita = hora.getValue();
+        if (horaCita == null || horaCita.trim().isEmpty()) {
             throw new IllegalArgumentException("Selecciona la hora de la cita.");
         }
 
@@ -242,7 +293,7 @@ public class CitasController implements Initializable {
         }
 
         try {
-            horaCita = LocalTime.parse(horaCita).toString();
+            horaCita = LocalTime.parse(horaCita.trim()).toString();
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Indica una hora válida en formato HH:mm.");
         }
@@ -254,22 +305,36 @@ public class CitasController implements Initializable {
             throw new IllegalArgumentException("Selecciona el estado de la cita.");
         }
         return new Cita(id, dniPaciente.getText().trim(), doctor, fecha.getValue(), horaCita,
-                motivo.getText().trim(), diagnostico.getText().trim(), tratamiento.getText().trim(), estado);
+                textoSeguro(motivo.getText()), textoSeguro(diagnostico.getText()), textoSeguro(tratamiento.getText()), estado);
     }
 
+    // carga la cita seleccionada en el formulario (se vuelve a consultar en la base de datos)
     private void mostrarCita(Cita cita) {
+        cita = citaDao.buscarCita(cita.getIdcita());
+        if (cita == null) {
+            return;
+        }
+
         idCita.setText(Integer.toString(cita.getIdcita()));
         idDoctor.setText(Integer.toString(cita.getIdDoctor()));
         dniPaciente.setText(cita.getDniPaciente());
         motivo.setText(cita.getMotivo());
         fecha.setValue(cita.getFecha());
         hora.setValue(formatearHora(cita.getHora()));
-        tablaHistorial.getSelectionModel().select(cita);
         diagnostico.setText(cita.getDiagnostico());
         tratamiento.setText(cita.getTratamiento());
+
+        // Establecer el estado de la cita en los RadioButton
         pendiente.setSelected("Pendiente".equalsIgnoreCase(cita.getEstado()));
         atendida.setSelected("Atendida".equalsIgnoreCase(cita.getEstado()));
         anulada.setSelected("Anulada".equalsIgnoreCase(cita.getEstado()));
+
+        citaexiste = true; // Marcamos que la cita existe para futuras modificaciones
+    }
+
+    // un campo de texto con valor null (p. ej. diagnóstico sin rellenar en la BBDD) se trata como vacío
+    private String textoSeguro(String texto) {
+        return texto == null ? "" : texto.trim();
     }
 
     private String formatearHora(String horaTexto) {
@@ -291,10 +356,5 @@ public class CitasController implements Initializable {
         alerta.setHeaderText(titulo);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
-    }
-
-    private String detalle(IllegalStateException e) {
-        Throwable causa = e.getCause() == null ? e : e.getCause();
-        return causa.getMessage() == null ? causa.toString() : causa.getMessage();
     }
 }

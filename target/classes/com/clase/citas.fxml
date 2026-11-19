@@ -11,6 +11,8 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -29,12 +31,19 @@
             <HBox alignment="CENTER" spacing="8.0">
                <children>
                   <Label text="ID Cita:" />
-                  <TextField fx:id="idCita" prefWidth="100.0" styleClass="lookup-field" />
+                  <TextField fx:id="idCita" prefWidth="100.0" style="-fx-background-color: #FFFFC5;" styleClass="lookup-field" />
                   <Label text="ID Doctor:" />
-                  <TextField fx:id="idDoctor" prefWidth="100.0" styleClass="lookup-field" />
+                  <TextField fx:id="idDoctor" prefWidth="100.0" style="-fx-background-color: #FFFFC5;" styleClass="lookup-field" />
                   <Label text="DNI Paciente:" />
-                  <TextField fx:id="dniPaciente" onAction="#cargarHistorial" prefWidth="130.0" promptText="DNI" styleClass="lookup-field" />
-                  <Button mnemonicParsing="false" onAction="#cargarHistorial" text="Historial" />
+                  <TextField fx:id="dniPaciente" editable="false" prefWidth="130.0" style="-fx-background-color: #FFFFC5;" styleClass="lookup-field" />
+                  <Button mnemonicParsing="false" onAction="#limpiarCampos">
+                     <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@img/recargar.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
                </children>
             </HBox>
             <HBox alignment="CENTER" spacing="8.0">
@@ -71,7 +80,6 @@
                <children>
                   <Button onAction="#guardarCita" text="Guardar" />
                   <Button onAction="#eliminarCita" text="Eliminar" />
-                  <Button onAction="#limpiarCampos" text="Limpiar" />
                </children>
                <padding>
                   <Insets bottom="10.0" top="2.0" />
@@ -81,15 +89,15 @@
             <Label text="Historial de citas del paciente" />
             <TableView fx:id="tablaHistorial" minHeight="150.0" prefHeight="220.0" VBox.vgrow="ALWAYS">
                <columns>
-                  <TableColumn fx:id="colIdHistorial" prefWidth="55.0" text="ID" />
-                  <TableColumn fx:id="colFechaHistorial" prefWidth="90.0" text="Fecha" />
-                  <TableColumn fx:id="colHoraHistorial" prefWidth="65.0" text="Hora" />
-                  <TableColumn fx:id="colDoctorHistorial" prefWidth="130.0" text="Doctor" />
-                  <TableColumn fx:id="colEspecialidadHistorial" prefWidth="120.0" text="Especialidad" />
-                  <TableColumn fx:id="colMotivoHistorial" prefWidth="130.0" text="Motivo" />
-                  <TableColumn fx:id="colDiagnosticoHistorial" prefWidth="165.0" text="Diagnóstico" />
-                  <TableColumn fx:id="colTratamientoHistorial" prefWidth="165.0" text="Tratamiento" />
-                  <TableColumn fx:id="colEstadoHistorial" prefWidth="95.0" text="Estado" />
+                  <TableColumn fx:id="colIdHistorial" prefWidth="44.0" text="ID" />
+                  <TableColumn fx:id="colFechaHistorial" prefWidth="70.0" text="Fecha" />
+                  <TableColumn fx:id="colHoraHistorial" prefWidth="57.0" text="Hora" />
+                  <TableColumn fx:id="colDoctorHistorial" prefWidth="110.0" text="Doctor" />
+                  <TableColumn fx:id="colEspecialidadHistorial" prefWidth="121.0" text="Especialidad" />
+                  <TableColumn fx:id="colMotivoHistorial" prefWidth="135.0" text="Motivo" />
+                  <TableColumn fx:id="colDiagnosticoHistorial" prefWidth="140.0" text="Diagnóstico" />
+                  <TableColumn fx:id="colTratamientoHistorial" prefWidth="153.0" text="Tratamiento" />
+                  <TableColumn fx:id="colEstadoHistorial" prefWidth="133.0" text="Estado" />
                </columns>
             </TableView>
          </children>

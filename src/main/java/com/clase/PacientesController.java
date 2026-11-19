@@ -2,7 +2,7 @@ package com.clase;
 
 import com.clase.modelo.Paciente;
 import com.clase.persistencia.PacienteDAOMySQL;
-import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -12,12 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 
 import javafx.fxml.FXML;
@@ -49,13 +47,21 @@ public class PacientesController implements Initializable {
     @FXML
     private TableColumn<Paciente, String> coldnipac, colapelpac, colnompac, colmovilpac, colpropac, colmunipac;
 
+    // referencia (alSeleccionarPaciente) al controlador de citas para poder enviarle el paciente seleccionado
     private Consumer<Paciente> alSeleccionarPaciente = paciente -> { };
     boolean pacienteexiste = false;
+    private boolean emailValido = true;
 
+    // Este método se llama automáticamente cuando se carga la vista FXML
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        cargarProvincias();
-        cmbpac.valueProperty().addListener((observable, oldValue, newValue) -> cargarMunicipios(newValue));
+
+        coldnipac.setCellValueFactory(new PropertyValueFactory<>("dni"));
+        colapelpac.setCellValueFactory(new PropertyValueFactory<>("apellidos"));
+        colnompac.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colmovilpac.setCellValueFactory(new PropertyValueFactory<>("movil"));
+        colpropac.setCellValueFactory(new PropertyValueFactory<>("provincia"));
+        colmunipac.setCellValueFactory(new PropertyValueFactory<>("municipio"));
 
         dnipac.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) { 
@@ -84,22 +90,51 @@ public class PacientesController implements Initializable {
             });
         }
 
-        coldnipac.setCellValueFactory(new PropertyValueFactory<>("dni"));
-        colapelpac.setCellValueFactory(new PropertyValueFactory<>("apellidos"));
-        colnompac.setCellValueFactory(new PropertyValueFactory<>("nombre"));
-        colmovilpac.setCellValueFactory(new PropertyValueFactory<>("movil"));
-        colpropac.setCellValueFactory(new PropertyValueFactory<>("provincia"));
-        colmunipac.setCellValueFactory(new PropertyValueFactory<>("municipio"));
-        cargarPacientes();
-
-        tablaPacientes.getSelectionModel().selectedItemProperty().addListener((observable, anterior, nuevo) -> {
-            if (nuevo != null) {
-                cargarPaciente();
-                alSeleccionarPaciente.accept(nuevo);
+        emailpac.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                validarEmail();
             }
         });
+
+        // carga el paciente seleccionado de la tabla en el formulario
+        tablaPacientes.getSelectionModel().selectedItemProperty().addListener((observable, anterior, nuevo) -> {
+            if (nuevo != null) {
+                alSeleccionarPaciente.accept(nuevo);
+                cargarPaciente();
+            }
+        });
+
+        cargarProvincias();
+
+        cmbpac.setOnAction(e -> cargarMunicipios(cmbpac.getValue()));
+
+        cargarPacientes();
     }
 
+    private boolean validarEmail() {
+
+        String email = emailpac.getText().trim();
+
+        // Vacío = válido (campo opcional)
+        if (email.isEmpty()) {
+            emailValido = true;
+            return true;
+        }
+        else{
+            emailpac.setStyle("-fx-border-color: red;");
+            emailpac.clear();
+        }
+
+        // Expresión regular para validar el email
+        String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+
+        emailValido = email.matches(regex);
+
+        return emailValido;
+    }
+
+
+    // método para recibir peticiones de citas controller
     void setAlSeleccionarPaciente(Consumer<Paciente> alSeleccionarPaciente) {
         this.alSeleccionarPaciente = alSeleccionarPaciente;
     }
@@ -110,13 +145,15 @@ public class PacientesController implements Initializable {
                 throw new IOException("No se encontró provincias.json");
             }
 
-            JsonObject datos = JsonParser.parseReader(new InputStreamReader(entrada, StandardCharsets.UTF_8))
+            JsonObject json = JsonParser.parseReader(new InputStreamReader(entrada, StandardCharsets.UTF_8))
                     .getAsJsonObject();
-            Provincia[] provincias = new Gson().fromJson(datos.getAsJsonArray("provincias"), Provincia[].class);
 
-            cmbpac.getItems().setAll(Arrays.stream(provincias)
-                    .map(Provincia::getNm)
-                    .collect(Collectors.toList()));
+            JsonArray provincias = json.getAsJsonArray("provincias");
+
+            for (var provincia : provincias) {
+                JsonObject p = provincia.getAsJsonObject();
+                cmbpac.getItems().add(p.get("nm").getAsString());
+            }
         } catch (IOException | RuntimeException e) {
             cmbpac.getItems().clear();
             System.err.println("ERROR al cargar las provincias: " + e.getMessage());
@@ -124,6 +161,8 @@ public class PacientesController implements Initializable {
     }
 
     private void cargarMunicipios(String nombreProvincia) {
+        // Eliminamos los municipios que pudiera haber
+        // de una selección anterior muy importante sino agrega municipios
         locpac.getItems().clear();
         if (nombreProvincia == null) {
             return;
@@ -135,28 +174,40 @@ public class PacientesController implements Initializable {
                 throw new IOException("No se encontraron los archivos de datos");
             }
 
-            Gson gson = new Gson();
-            JsonObject datosProvincias = JsonParser.parseReader(
-                    new InputStreamReader(entradaProvincias, StandardCharsets.UTF_8)).getAsJsonObject();
-            Provincia provincia = Arrays.stream(gson.fromJson(
-                            datosProvincias.getAsJsonArray("provincias"), Provincia[].class))
-                    .filter(elemento -> elemento.getNm().equals(nombreProvincia))
-                    .findFirst()
-                    .orElse(null);
+            // Obtenemos los dos arrays que necesitamos
+            JsonArray provincias = JsonParser.parseReader(
+                    new InputStreamReader(entradaProvincias, StandardCharsets.UTF_8))
+                    .getAsJsonObject().getAsJsonArray("provincias");
+            JsonArray municipios = JsonParser.parseReader(
+                    new InputStreamReader(entradaMunicipios, StandardCharsets.UTF_8))
+                    .getAsJsonObject().getAsJsonArray("municipios");
 
-            if (provincia == null) {
-                return;
+            // Variable donde guardaremos el código de la provincia
+            String idProvincia = "";
+
+            // Recorremos las provincias
+            for (var provincia : provincias) {
+                JsonObject p = provincia.getAsJsonObject();
+
+                // Comprobamos si es la provincia seleccionada
+                if (p.get("nm").getAsString().equals(nombreProvincia)) {
+                    // Obtenemos su código
+                    idProvincia = p.get("id").getAsString();
+                    // Ya hemos encontrado la provincia
+                    break;
+                }
             }
 
-            JsonObject datosMunicipios = JsonParser.parseReader(
-                    new InputStreamReader(entradaMunicipios, StandardCharsets.UTF_8)).getAsJsonObject();
-                Municipio[] municipios = gson.fromJson(datosMunicipios.getAsJsonArray("municipios"), Municipio[].class);
-            List<String> nombresMunicipios = Arrays.stream(municipios)
-                    .filter(municipio -> municipio.getCodigoProvincia().equals(String.format("%02d", provincia.getId())))
-                    .map(Municipio::getNm)
-                    .sorted()
-                    .collect(Collectors.toList());
-            locpac.getItems().setAll(nombresMunicipios);
+            // Recorremos todos los municipios
+            for (var municipio : municipios) {
+                JsonObject m = municipio.getAsJsonObject();
+
+                // Comprobamos los dos primeros caracteres del código
+                if (m.get("id").getAsString().startsWith(idProvincia)) {
+                    // Si pertenecen a la provincia, añadimos su nombre al ComboBox
+                    locpac.getItems().add(m.get("nm").getAsString());
+                }
+            }
         } catch (IOException | RuntimeException e) {
             System.err.println("ERROR al cargar los municipios: " + e.getMessage());
         }
@@ -167,19 +218,14 @@ public class PacientesController implements Initializable {
     }
 
     private String formatearNombrePropio(String texto) {
-        texto = texto.trim();
-        if (texto.isEmpty()) {
-            return "";
-        }
-
-        String[] palabras = texto.split("\\s+");
+        String[] palabras = texto.toLowerCase().trim().split("\\s+");
         StringBuilder resultado = new StringBuilder();
 
         for (String palabra : palabras) {
             if (!palabra.isEmpty()) {
                 resultado.append(Character.toUpperCase(palabra.charAt(0)))
-                         .append(palabra.substring(1).toLowerCase())
-                         .append(" ");
+                        .append(palabra.substring(1))
+                        .append(" ");
             }
         }
 
@@ -189,16 +235,14 @@ public class PacientesController implements Initializable {
     @FXML
     private void comprobarDni() {
         String dni = dnipac.getText() != null ? dnipac.getText().trim().toUpperCase() : "";
-        
-        if (dni.isEmpty()) {
-            dnipac.setStyle("");
+        if (dni.isEmpty())
             return;
-        }
-        
+
         if (validarDniNie(dni)) {
-            dnipac.setStyle("-fx-border-color: green; -fx-border-width: 1.5px;");
+            dnipac.setStyle("");
+            dnipac.setText(dni);
         } else {
-            dnipac.setStyle("-fx-border-color: red; -fx-border-width: 1.5px;");
+            dnipac.setStyle("-fx-border-color: red;");
             dnipac.setText("");
         }
     }
@@ -224,31 +268,30 @@ public class PacientesController implements Initializable {
         return false;
     }
 
+    /// validar movil
     @FXML
     private void comprobarTelefono() {
         TextField campoTlf = getCampoTelefono();
         if (campoTlf == null) return;
 
-        String tlf = campoTlf.getText() != null ? campoTlf.getText().trim() : "";
-
-        if (tlf.isEmpty()) {
-            campoTlf.setStyle("");
+        String tlf = campoTlf.getText() != null ? campoTlf.getText() : "";
+        if (tlf.isEmpty())
             return;
-        }
 
         if (validarTelefono(tlf)) {
-            campoTlf.setStyle("-fx-border-color: green; -fx-border-width: 1.5px;");
+            campoTlf.setStyle("");
+            campoTlf.setText(tlf);
         } else {
-            campoTlf.setStyle("-fx-border-color: red; -fx-border-width: 1.5px;");
+            campoTlf.setStyle("-fx-border-color: red;");
             campoTlf.setText("");
         }
     }
 
-    
     private boolean validarTelefono(String telefono) {
-        return telefono != null && telefono.matches("^[6789]\\d{8}$");
+        return telefono != null && telefono.matches("[67][0-9]{8}");
     }
 
+    // FUNCIONES CON BASE DE DATOS
     @FXML
     private void guardarPaciente() {
         if (nacpac.getValue() == null) {
@@ -265,53 +308,74 @@ public class PacientesController implements Initializable {
         String direccion = dirpac.getText();
         String provincia = cmbpac.getValue();
         String municipio = locpac.getValue(); 
-        // Creamos el objeto Paciente 
+
         if (dni.isBlank() || apellidos.isBlank() || nombre.isBlank() || movil.isBlank()
                 || direccion.isBlank() || provincia == null || municipio == null) {
             System.err.println("No se puede guardar: completa todos los campos obligatorios");
             return;
         }
 
+        // Creamos el objeto Paciente
         Paciente paciente = new Paciente(dni, apellidos, nombre, fechaNacimiento, movil, email, direccion, provincia, municipio);
 
-        PacienteDAOMySQL dao = new PacienteDAOMySQL();
         if (pacienteexiste) {
-            dao.modificarPaciente(paciente.getDni(), paciente);
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Información");
-            alert.setHeaderText("Sanidad Teis");
-            alert.setContentText("Paciente Modificado Correctamente");
-            alert.showAndWait();
-            pacienteexiste = false;
-            buscaPacDni();
-        } else {
-            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmacion.setTitle("Confirmar alta");
-            confirmacion.setHeaderText(null);
-            confirmacion.setContentText("¿Confirmas que quieres crear este paciente?");
-            Optional<ButtonType> resultado = confirmacion.showAndWait();
-            if (resultado.isEmpty() || resultado.get() != ButtonType.OK) {
+            Alert alert3 = new Alert(Alert.AlertType.CONFIRMATION);
+            alert3.setTitle("Aviso");
+            alert3.setHeaderText(null);
+            alert3.setContentText("¿Desea Modificar Datos Paciente?");
+            Optional<ButtonType> result = alert3.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                // Si el paciente ya existe, lo actualizamos en la base de datos
+                PacienteDAOMySQL dao = new PacienteDAOMySQL();
+                dao.modificarPaciente(paciente.getDni(), paciente);
+                Alert alert4 = new Alert(Alert.AlertType.INFORMATION);
+                alert4.setTitle("Información");
+                alert4.setHeaderText(null);
+                alert4.setContentText("Paciente Modificado");
+                alert4.showAndWait();
+            } else {
                 return;
             }
+            pacienteexiste = false; // importante
 
-            dao.guardarPaciente(paciente);
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Información");
-            alert.setHeaderText("Sanidad Teis");
-            alert.setContentText("Paciente Guardado Correctamente");
-            alert.showAndWait();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Aviso");
+            alert.setHeaderText(null);
+            alert.setContentText("¿Desea Grabar Nuevo Paciente?");
+            Optional<ButtonType> result2 = alert.showAndWait();
+            if (result2.isPresent() && result2.get() == ButtonType.OK) {
+                // Si el paciente no existe, lo guardamos en la base de datos
+                PacienteDAOMySQL dao = new PacienteDAOMySQL();
+                dao.guardarPaciente(paciente);
+                Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+                alert2.setTitle("Información");
+                alert2.setHeaderText(null);
+                alert2.setContentText("Paciente Guardado");
+                alert2.showAndWait();
+            } else {
+                return;
+            }
         }
 
+        // recargar la tabla con el nuevo paciente
         cargarPacientes();
     }
 
     public void cargarPaciente() {
-        Paciente paciente = tablaPacientes.getSelectionModel().getSelectedItem();
-        if (paciente == null) {
+        Paciente pacienteselect = tablaPacientes.getSelectionModel().getSelectedItem(); // carga los datos de la fila seleccionada
+        if (pacienteselect == null) {
             return;
         }
 
         pacienteexiste = true;
+
+        PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        Paciente paciente = dao.buscarPaciente(pacienteselect.getDni());
+        if (paciente == null) {
+            return;
+        }
+
         dnipac.setText(paciente.getDni());
         apelpac.setText(paciente.getApellidos());
         nompac.setText(paciente.getNombre());
@@ -321,8 +385,6 @@ public class PacientesController implements Initializable {
         nacpac.setValue(paciente.getNacimiento());
         cmbpac.setValue(paciente.getProvincia());
         locpac.setValue(paciente.getMunicipio());
-
-
     }
 
     @FXML
@@ -339,13 +401,18 @@ public class PacientesController implements Initializable {
         locpac.getItems().clear();
         dnipac.setStyle("");
         tlfopac.setStyle("");
+        emailpac.setStyle("");
         tablaPacientes.getSelectionModel().clearSelection();
     }
 
+    // cargar pacientes en la tabla
     @FXML 
     private void cargarPacientes() {
+        // Creamos el DAO
         PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        // Obtenemos los pacientes de la base de datos
         List<Paciente> pacientes = dao.cargarPacientes();
+        // Los mostramos en la tabla
         tablaPacientes.getItems().setAll(pacientes);
     }
 
@@ -356,26 +423,26 @@ public class PacientesController implements Initializable {
             return;
         }
 
-        PacienteDAOMySQL dao = new PacienteDAOMySQL();
-        try {
-            
-            
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Aviso");
-            alert.setHeaderText(null);
-            alert.setContentText("Quieres eliminar al paciente?");
-            Optional<ButtonType> result = alert.showAndWait();
-
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                dao.eliminarPaciente(seleccionado.getDni());
-                tablaPacientes.getItems().remove(seleccionado);
-                limpiarCampos();
-                
-            }
-            
-        } catch (IllegalStateException e) {
-            System.err.println("ERROR al eliminar el paciente: " + e.getMessage());
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Aviso");
+        alert.setHeaderText(null);
+        alert.setContentText("¿Desea Eliminar Datos Paciente?");
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            PacienteDAOMySQL dao = new PacienteDAOMySQL();
+            dao.eliminarPaciente(seleccionado.getDni());
+            Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+            alert2.setTitle("Aviso");
+            alert2.setHeaderText(null);
+            alert2.setContentText("Paciente Eliminado de Base de Datos");
+            alert2.showAndWait();
+        } else {
+            return;
         }
+
+        // Recargamos la tabla de pacientes
+        limpiarCampos();
+        cargarPacientes();
     }
 
     @FXML
@@ -384,13 +451,16 @@ public class PacientesController implements Initializable {
         PacienteDAOMySQL dao = new PacienteDAOMySQL();
         Paciente paciente = dao.buscaPacDni(dnipac.getText());
         if (paciente == null) {
-            System.err.println("No se encontró un paciente con ese DNI");
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Búsqueda de paciente");
-            alert.setHeaderText(null);
-            alert.setContentText("No se encontró un paciente con ese DNI en la BBD.");
-            alert.showAndWait();
+            Alert alert2 = new Alert(Alert.AlertType.WARNING);
+            alert2.setTitle("Aviso");
+            alert2.setHeaderText(null);
+            alert2.setContentText("Paciente no existe en BBDD");
+            alert2.showAndWait();
             return;
+        } else {
+            pacienteexiste = true;
+            // Enviamos el paciente al controlador de citas
+            alSeleccionarPaciente.accept(paciente);
         }
 
         dnipac.setText(paciente.getDni());

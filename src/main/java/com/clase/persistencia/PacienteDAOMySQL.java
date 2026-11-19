@@ -31,21 +31,22 @@ public class PacienteDAOMySQL implements PacienteDAO{
 
                 ps.executeUpdate();
 
-                System.out.println("Paciente guardado correctamente");
+                System.out.println("Paciente guardado correctamente.");
 
             } catch (SQLException e) {
-                throw new IllegalStateException("No se pudo guardar el paciente en la base de datos", e);
+                System.out.println("Error al guardar el paciente: " + e.getMessage());
             }
     }
 
+    // seleccionar pacientes de la bbdd
     @Override
     public List<Paciente> cargarPacientes() {
 
         List<Paciente> pacientes = new ArrayList<>();
 
         // Solo obtenemos los campos que necesitamos para la tabla
-        String sql = "SELECT dnipac, apelpac, nompac, nacimientopac, movilpac, "
-            + "mailpac, dirpac, propac, munipac "
+        String sql = "SELECT dnipac, apelpac, nompac, movilpac, "
+                + "propac, munipac "
                 + "FROM pacientes "
                 + "ORDER BY apelpac, nompac";
 
@@ -60,10 +61,7 @@ public class PacienteDAOMySQL implements PacienteDAO{
                         rs.getString("dnipac"),
                         rs.getString("apelpac"),
                         rs.getString("nompac"),
-                        rs.getDate("nacimientopac").toLocalDate(),
                         rs.getString("movilpac"),
-                        rs.getString("mailpac"),
-                        rs.getString("dirpac"),
                         rs.getString("propac"),
                         rs.getString("munipac"));
 
@@ -71,9 +69,10 @@ public class PacienteDAOMySQL implements PacienteDAO{
             }
 
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudieron cargar los pacientes", e);
+            System.out.println("Error al cargar los pacientes: " + e.getMessage());
         }
 
+        // devuelve los pacientes que hay en la bbdd
         return pacientes;
     }
 
@@ -166,7 +165,7 @@ public class PacienteDAOMySQL implements PacienteDAO{
                 System.out.println("Paciente eliminado correctamente.");
 
             } catch (SQLException e) {
-                throw new IllegalStateException("No se pudo eliminar el paciente de la base de datos", e);
+                System.out.println("Error al eliminar el paciente: " + e.getMessage());
             }
     }
 
@@ -203,7 +202,7 @@ public class PacienteDAOMySQL implements PacienteDAO{
             System.out.println("Paciente modificado correctamente.");
 
         } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo modificar el paciente en la base de datos", e);
+            System.out.println("Error al modificar el paciente: " + e.getMessage());
         }
     }
     

@@ -2,6 +2,7 @@ C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\modelo\Doctor.ja
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\modelo\Paciente.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\persistencia\ConexionMySQL.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\modelo\Cita.java
+C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\informes\imprimirPacientes.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\persistencia\DoctorDAO.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\persistencia\CitaDAOMySQL.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\Municipio.java
@@ -10,9 +11,10 @@ C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\Provincia.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\VentanaController.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\DoctoresController.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\PacientesController.java
+C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\persistencia\CitaDAO.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\CitasController.java
-C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\InformePacientesPDF.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\App.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\persistencia\PacienteDAO.java
+C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\module-info.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\AcercadeController.java
 C:\Users\a23xiangd.TEIS\projectoclinica\src\main\java\com\clase\persistencia\DoctorDAOMySQL.java
